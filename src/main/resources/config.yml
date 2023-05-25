@@ -1,0 +1,22 @@
+# Fishing rod structure:
+# {display-name} &f(&7Level {level}&f)
+#  Lore:
+#  - ""
+#  - "&e&lExperience: &3{current}&f/&c{required}
+#  - ""
+#  - "&7Perks:"
+#  - ""
+#  - {perks}
+#  - {perks}
+#  - etc.
+
+# Must have one rod with a minimum-level of 1
+
+old-rod:
+  minimum-level: 1 # No need to set maximum, as the next milestone would do that
+  display-name: "&b&lOld Rod"
+  loot: # Chances are weighted, so the chance an item will drop is determined by percent of total weight.
+    #"1":
+      #item: aoWDACmwdmwaodj # Serialized itemstack
+     # chance: 20.00 # Double
+     # experience: 40.00 # Double
