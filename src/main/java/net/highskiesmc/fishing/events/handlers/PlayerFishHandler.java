@@ -3,8 +3,11 @@ package net.highskiesmc.fishing.events.handlers;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
+import com.sun.tools.javac.comp.Check;
 import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.events.events.IslandFishCaughtEvent;
+import net.highskiesmc.fishing.util.DropEntry;
+import net.highskiesmc.fishing.util.DropTable;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,7 +20,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerFishHandler implements Listener {
@@ -43,13 +48,13 @@ public class PlayerFishHandler implements Listener {
                 return;
             }
 
-            //TODO: Check if they are using a valid fishing rod
-            // TODO: set entity to air
 
+            // Clear existing drops
             Item itemCaught = (Item) e.getCaught();
             itemCaught.setItemStack(new ItemStack(Material.AIR));
             e.setExpToDrop(0);
 
+            //  Check if they are using a valid fishing rod
             HSFishingRod hsFishingRod;
             try {
                 hsFishingRod = new HSFishingRod(this.MAIN,
@@ -58,15 +63,19 @@ public class PlayerFishHandler implements Listener {
                 //TODO: Provide player feedback that they must use a valid fishing rod
 
                 return;
+            } catch (IOException ex) {
+                this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
+                e.setCancelled(true);
+                return;
             }
 
-            //TODO: set new drop(s)
-            //TODO: get a random drop from the fishingRod object. There will be a method to get a random one based on
-            // the weights in config.
-            List<ItemStack> drops = new ArrayList<>();
+            //TODO: Grab item-luck and experience from fishing rod
+            DropTable dropTable = hsFishingRod.getDropTable();
+            List<DropEntry> drops = new ArrayList<>();
+            drops.add(dropTable.getRandomDrop());
 
             // Call the custom event
-            IslandFishCaughtEvent event = new IslandFishCaughtEvent(player, drops, e.getPlayer().getItemInUse(),
+            IslandFishCaughtEvent event = new IslandFishCaughtEvent(player, drops, hsFishingRod,
                     island, e.getHook());
             Bukkit.getPluginManager().callEvent(event);
 
