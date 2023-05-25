@@ -14,7 +14,7 @@ public final class HSFishing extends JavaPlugin {
         saveDefaultConfig();
 
         getCommand("hsfishing").setExecutor(new HSFishingCommand(this));
-        getCommand("hsfishing").setTabCompleter(new HSFishingTabCompleter());
+        getCommand("hsfishing").setTabCompleter(new HSFishingTabCompleter(this));
 
         Bukkit.getPluginManager().registerEvents(new PlayerFishHandler(this), this);
     }

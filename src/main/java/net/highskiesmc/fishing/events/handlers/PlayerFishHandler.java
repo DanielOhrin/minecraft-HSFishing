@@ -50,8 +50,9 @@ public class PlayerFishHandler implements Listener {
 
 
             // Clear existing drops
-            Item itemCaught = (Item) e.getCaught();
-            itemCaught.setItemStack(new ItemStack(Material.AIR));
+            if (e.getCaught() != null) {
+                e.getCaught().remove();
+            }
             e.setExpToDrop(0);
 
             //  Check if they are using a valid fishing rod
