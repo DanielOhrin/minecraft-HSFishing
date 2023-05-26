@@ -1,5 +1,6 @@
 package net.highskiesmc.fishing.util;
 
+import net.highskiesmc.fishing.util.enums.Rarity;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
@@ -47,11 +48,26 @@ public class DropTable {
         for (DropEntry dropEntry : this.DROP_ENTRIES) {
             randomWeight -= dropEntry.getWeight();
             if (randomWeight <= 0) {
+                dropEntry.setRarity(this.getRarity(dropEntry.getWeight() / totalWeight));
                 return dropEntry;
             }
         }
 
         return null; // No item selected
+    }
+
+    private Rarity getRarity(double dropChance) {
+        if (dropChance > 0.40D) {
+            return Rarity.COMMON;
+        } else if (dropChance > 0.15D) {
+            return Rarity.UNCOMMON;
+        } else if (dropChance > 0.05D) {
+            return Rarity.RARE;
+        } else if (dropChance > 0.01D) {
+            return Rarity.EPIC;
+        } else {
+            return Rarity.LEGENDARY;
+        }
     }
 }
 
