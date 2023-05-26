@@ -1,6 +1,9 @@
 package net.highskiesmc.fishing.events.events;
 
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import net.highskiesmc.fishing.HSFishing;
+import net.highskiesmc.fishing.util.DropEntry;
+import net.highskiesmc.fishing.util.HSFishingRod;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -8,21 +11,23 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+
 public class IslandFishCaughtEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean cancelled;
     private final Player PLAYER;
-    private final ItemStack FISHING_ROD;
-    private ItemStack DROPPED_ITEM;
+    private final HSFishingRod FISHING_ROD;
+    private List<DropEntry> DROPPED_ITEMS;
     private final Island ISLAND;
     private final FishHook HOOK;
 
-    public IslandFishCaughtEvent(Player player, ItemStack droppedItem, ItemStack itemInHand, Island island,
+    public IslandFishCaughtEvent(Player player, List<DropEntry> droppedItems, HSFishingRod fishingRod, Island island,
                                  FishHook fishHook) {
         this.cancelled = false;
         this.PLAYER = player;
-        this.DROPPED_ITEM = droppedItem;
-        this.FISHING_ROD = itemInHand;
+        this.DROPPED_ITEMS = droppedItems;
+        this.FISHING_ROD = fishingRod;
         this.ISLAND = island;
         this.HOOK = fishHook;
     }
@@ -31,7 +36,7 @@ public class IslandFishCaughtEvent extends Event implements Cancellable {
         return this.PLAYER;
     }
 
-    public ItemStack getFishingRod() {
+    public HSFishingRod getFishingRod() {
         return this.FISHING_ROD;
     }
     public FishHook getHook() {
@@ -42,12 +47,12 @@ public class IslandFishCaughtEvent extends Event implements Cancellable {
         return this.ISLAND;
     }
 
-    public ItemStack getDroppedItem() {
-        return this.DROPPED_ITEM;
+    public List<DropEntry> getDroppedItems() {
+        return this.DROPPED_ITEMS;
     }
 
-    public void setDroppedItem(ItemStack droppedItem) {
-        this.DROPPED_ITEM = droppedItem;
+    public void setDroppedItems(List<DropEntry> droppedItems) {
+        this.DROPPED_ITEMS = droppedItems;
     }
 
     @Override
