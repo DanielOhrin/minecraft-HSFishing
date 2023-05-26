@@ -20,7 +20,7 @@ public class CustomLevelSystem {
         // Adjust the formula based on your desired progression curve
         // For example, linear progression: experienceRequired = level * 100;
         // Or exponential progression: experienceRequired = (int) (Math.pow(level, 2) * 100);
-        return level * 100;
+        return (int) (Math.pow(level, 2) * 100);
     }
 
     public static int getExperienceRequiredForLevel(int level) {
