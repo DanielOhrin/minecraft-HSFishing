@@ -27,12 +27,12 @@ public class RodLevelUpHandler implements Listener {
         int newLevel = rod.getLevel();
         String rodMessage = MESSAGE
                 .replace("{rod}", rod.getDisplayName())
-                .replace(ChatColor.WHITE + ")", " -> " + (newLevel - 1) + ChatColor.WHITE + ')');
+                .replace(String.valueOf(newLevel), (newLevel - 1) + " -> " + newLevel);
         String perkMessage;
         if (perkAdded.isEmpty()) {
             perkMessage = MESSAGE_PERK
                     .replace("{perk}", ChatColor.RED + "None :(")
-                    .replace("{amount}", "");
+                    .replace("+{amount}", "");
         } else {
             Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
             perkMessage = MESSAGE_PERK
