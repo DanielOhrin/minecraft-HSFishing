@@ -90,6 +90,7 @@ public class PlayerFishHandler implements Listener {
                 e.setCancelled(true);
                 return;
             }
+
             List<DropEntry> drops = event.getDroppedItems();
             //TODO: calculate total experience
             //TODO: Add exp and currentExp to rod
@@ -105,6 +106,4 @@ public class PlayerFishHandler implements Listener {
             //TODO: replace their rod with the updated one
         }
     }
-
-    //TODO: Make a reelItems(List<DropEntry> entry method)
 }

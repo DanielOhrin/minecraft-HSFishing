@@ -33,7 +33,7 @@ public class ItemLauncher {
                 @Override
                 public void run() {
                     if (droppedItem.isValid() && !droppedItem.isDead()) {
-                        Vector direction = player.getLocation().subtract(droppedItem.getLocation()).toVector();
+                        Vector direction = player.getEyeLocation().subtract(droppedItem.getLocation()).toVector();
 
                         // Check if the item has reached the player's location
                         if (direction.lengthSquared() <= MIN_DISTANCE) {
@@ -66,7 +66,7 @@ public class ItemLauncher {
     }
 
     private static Vector getLaunchVelocity(Player player, Item item) {
-        Vector direction = player.getLocation().subtract(item.getLocation()).toVector();
+        Vector direction = player.getEyeLocation().subtract(item.getLocation()).toVector();
         return direction.normalize().multiply(LAUNCH_SPEED);
     }
 }
