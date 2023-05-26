@@ -21,16 +21,27 @@ import java.util.List;
  */
 public class HSFishingRod {
     private ConfigurationSection ROD_CONFIG;
-    private final NamespacedKey EXPERIENCE_KEY;
     private final NamespacedKey LEVEL_KEY;
+    private final NamespacedKey TOTAL_EXPERIENCE_KEY;
+    private final NamespacedKey CURRENT_EXPERIENCE_KEY; // Current experience earned towards next level
+    private final NamespacedKey ITEM_LUCK_KEY;
+    private final NamespacedKey EXPERIENCE_MULTIPLIER_KEY;
+    private final NamespacedKey TOTAL_ITEMS_CAUGHT_KEY;
     private final HSFishing MAIN;
-    private int experience;
-    private int level;
+    private double totalExperience = 0;
+    private double currentExperience = 0;
+    private double itemLuck = 0;
+    private int totalItemsCaught = 0;
+    private int level = 1;
+    private double experienceMultiplier = 1.0D;
     private final DropTable DROP_TABLE;
 
     public HSFishingRod(HSFishing main, ItemStack existingRod) throws IOException {
         this.MAIN = main;
-        this.EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-exp");
+        this.TOTAL_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-total-experience");
+        this.CURRENT_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-current-experience");
+        this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
+        this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
         this.LEVEL_KEY = new NamespacedKey(this.MAIN, "rod-level");
 
         // Parse existing Rod
@@ -43,11 +54,14 @@ public class HSFishingRod {
 
     public HSFishingRod(HSFishing main) throws IOException {
         this.MAIN = main;
-        this.EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-exp");
         this.LEVEL_KEY = new NamespacedKey(this.MAIN, "rod-level");
+        this.TOTAL_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-total-experience");
+        this.CURRENT_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-current-experience");
+        this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
+        this.EXPERIENCE_MULTIPLIER_KEY = new NamespacedKey(this.MAIN, "rod-experience-multiplier");
+        this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
 
         // Construct new rod
-        this.defaultRod();
         this.findRodConfig();
 
         // Fetch the drop table
@@ -59,8 +73,12 @@ public class HSFishingRod {
         if (existingRod.hasItemMeta()) {
             pdc = existingRod.getItemMeta().getPersistentDataContainer();
             if (pdc.has(this.LEVEL_KEY, PersistentDataType.INTEGER)) {
-                this.experience = pdc.get(this.EXPERIENCE_KEY, PersistentDataType.INTEGER);
                 this.level = pdc.get(this.LEVEL_KEY, PersistentDataType.INTEGER);
+                this.totalExperience = pdc.get(this.TOTAL_EXPERIENCE_KEY, PersistentDataType.DOUBLE);
+                this.currentExperience = pdc.get(this.CURRENT_EXPERIENCE_KEY, PersistentDataType.DOUBLE);
+                this.itemLuck = pdc.get(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE);
+                this.experienceMultiplier = pdc.get(this.EXPERIENCE_MULTIPLIER_KEY, PersistentDataType.DOUBLE);
+                this.totalItemsCaught = pdc.get(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER);
             } else {
                 throw new IllegalArgumentException("Item received was not a valid HSFishingRod");
             }
@@ -71,14 +89,6 @@ public class HSFishingRod {
     }
 
     /**
-     * Generates default values for the fishing rod
-     */
-    private void defaultRod() {
-        this.experience = 0;
-        this.level = 1;
-    }
-
-    /**
      * @return new Fishing Rod matching the current object's properties
      */
     public ItemStack getRod() {
@@ -86,8 +96,12 @@ public class HSFishingRod {
         ItemMeta meta = rod.getItemMeta();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
 
-        pdc.set(this.EXPERIENCE_KEY, PersistentDataType.INTEGER, this.experience);
         pdc.set(this.LEVEL_KEY, PersistentDataType.INTEGER, this.level);
+        pdc.set(this.TOTAL_EXPERIENCE_KEY, PersistentDataType.DOUBLE, this.totalExperience);
+        pdc.set(this.CURRENT_EXPERIENCE_KEY, PersistentDataType.DOUBLE, this.currentExperience);
+        pdc.set(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE, this.itemLuck);
+        pdc.set(this.EXPERIENCE_MULTIPLIER_KEY, PersistentDataType.DOUBLE, this.experienceMultiplier);
+        pdc.set(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER, this.totalItemsCaught);
 
         if (this.ROD_CONFIG == null) {
             throw new NullPointerException("Could not find matching configuration section for the rod");
@@ -123,10 +137,16 @@ public class HSFishingRod {
         // Add rest of the lore
         lore.add("");
         lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Experience: "
-                + ChatColor.DARK_AQUA + this.experience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level));
-        //TODO: List perks here
-        //        lore.add("");
-        //        lore.add(ChatColor.GRAY + "Perks:");
+                + ChatColor.DARK_AQUA + this.currentExperience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level));
+
+        // List perks
+        lore.add("");
+        lore.add(ChatColor.WHITE.toString() + ChatColor.BOLD + "Perks");
+
+        lore.add(ChatColor.YELLOW + "Xp Gain: " + ChatColor.AQUA + this.experienceMultiplier + 'x');
+        if (this.itemLuck > 0) {
+            lore.add(ChatColor.YELLOW + "Item Find: " + ChatColor.LIGHT_PURPLE + "+ " + this.itemLuck);
+        }
 
         return lore;
     }
