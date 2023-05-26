@@ -2,24 +2,19 @@ package net.highskiesmc.fishing.events.handlers;
 
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
-import com.sun.tools.javac.comp.Check;
 import net.highskiesmc.fishing.HSFishing;
-import net.highskiesmc.fishing.events.events.IslandFishCaughtEvent;
+import net.highskiesmc.fishing.events.events.FishCaughtEvent;
 import net.highskiesmc.fishing.util.DropEntry;
 import net.highskiesmc.fishing.util.DropTable;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.ItemLauncher;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -41,17 +36,6 @@ public class PlayerFishHandler implements Listener {
             Island island = SuperiorSkyblockAPI.getIslandAt(e.getHook().getLocation());
             Player player = e.getPlayer();
 
-            if (island == null
-                    || !island.hasPermission(SuperiorSkyblockAPI.getPlayer(player.getUniqueId()),
-                    IslandPrivilege.getByName("FISH"))) {
-                e.setCancelled(true);
-                player.sendMessage(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "[!] " +
-                        ChatColor.RED + "You can only catch fish on an island where you have permission to!");
-                player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
-                return;
-            }
-
-
             // Clear existing drops
             if (e.getCaught() != null) {
                 e.getCaught().remove();
@@ -67,7 +51,7 @@ public class PlayerFishHandler implements Listener {
                 // Provide player feedback that they must use a valid fishing rod
                 e.setCancelled(true);
                 player.sendMessage(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "[!] " +
-                        ChatColor.RED + "You can only catch fish on an island where you have permission to!");
+                        ChatColor.RED + "You cannot fish with this!");
                 player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
                 return;
             } catch (IOException ex) {
@@ -86,7 +70,7 @@ public class PlayerFishHandler implements Listener {
             initialDrops.add(dropTable.getRandomDrop());
 
             // Call the custom event
-            IslandFishCaughtEvent event = new IslandFishCaughtEvent(player, initialDrops, hsFishingRod,
+            FishCaughtEvent event = new FishCaughtEvent(player, initialDrops, hsFishingRod,
                     island, e.getHook());
             Bukkit.getPluginManager().callEvent(event);
 
