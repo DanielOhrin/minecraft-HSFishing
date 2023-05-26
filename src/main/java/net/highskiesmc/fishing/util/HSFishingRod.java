@@ -1,7 +1,7 @@
 package net.highskiesmc.fishing.util;
 
 import net.highskiesmc.fishing.HSFishing;
-import net.highskiesmc.fishing.events.events.HSRodLevelUpEvent;
+import net.highskiesmc.fishing.events.events.RodLevelUpEvent;
 import net.highskiesmc.fishing.util.enums.Perk;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -188,6 +188,7 @@ public class HSFishingRod {
         // TODO: Check if new level was a milestone upgrade
         int nextLevel = CustomLevelSystem.getNextLevel(this.level, this.currentExperience);
         //TODO BEFORE entering that new loop, check if milestone is reached
+        //TODO make method for UpgradeLevel
         if (nextLevel > this.level) {
             // Update necessary data and call custom event
             this.level = nextLevel;
@@ -196,13 +197,13 @@ public class HSFishingRod {
             // Add random perk
             HashMap<Perk, Double> perkAdded = this.addRandomPerk();
             if (!perkAdded.isEmpty()) {
-                Map.Entry<Perk, Double> perk = perkAdded.entrySet().iterator().next();
-                switch (perk.getKey()) {
+                Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
+                switch (perkEntry.getKey()) {
                     case ITEM_FIND:
-                        this.itemLuck += perk.getValue();
+                        this.itemLuck += perkEntry.getValue();
                         break;
                     case EXPERIENCE_MULTIPLIER:
-                        this.experienceMultiplier += perk.getValue();
+                        this.experienceMultiplier += perkEntry.getValue();
                         break;
                     default:
                         break;
@@ -213,7 +214,7 @@ public class HSFishingRod {
             findRodConfig();
 
             // Call the custom HSRodLevelUpEvent
-            Bukkit.getPluginManager().callEvent(new HSRodLevelUpEvent(this, perkAdded));
+            Bukkit.getPluginManager().callEvent(new RodLevelUpEvent(this, perkAdded));
         }
     }
 
