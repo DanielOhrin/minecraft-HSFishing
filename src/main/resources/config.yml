@@ -1,6 +1,7 @@
 # Fishing rod structure:
 # {display-name} &f(&7Level {level}&f)
-#  Lore:e
+#  Lore:
+#  - ""
 #  - {lore} -- The lore defined in the rod configuration
 #  - ""
 #  - "&e&lExperience: &3{current}&f/&c{required}
@@ -17,8 +18,8 @@ old-rod:
   minimum-level: 1 # No need to set maximum, as the next milestone would do that
   display-name: "&b&lOld Rod"
   lore:
-    - ""
-    - "An old, rusted rod."
+    - "&7An old, rusted rod."
+  particle: CLOUD # Particle that will show when reeling in an item
   drop-table: # Chances are weighted, so the chance an item will drop is determined by percent of total weight.
     #"1": -- Can be named whatever you like. I would recommend an identifying name, such as two-ink-sac or one-coal-node
       #item: aoWDACmwdmwaodj # Serialized itemstack

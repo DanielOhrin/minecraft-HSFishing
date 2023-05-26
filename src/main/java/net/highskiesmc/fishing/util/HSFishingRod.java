@@ -28,7 +28,7 @@ public class HSFishingRod {
     private int level;
     private final DropTable DROP_TABLE;
 
-    public HSFishingRod(HSFishing main, ItemStack existingRod) throws IOException{
+    public HSFishingRod(HSFishing main, ItemStack existingRod) throws IOException {
         this.MAIN = main;
         this.EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-exp");
         this.LEVEL_KEY = new NamespacedKey(this.MAIN, "rod-level");
@@ -111,13 +111,22 @@ public class HSFishingRod {
 
     public List<String> getLore() {
         List<String> lore = new ArrayList<>();
-        //TODO: Add lore from ROD_CONFIG
+        lore.add("");
+
+        // Add lore from ROD_CONFIG
+        List<String> configLore = this.ROD_CONFIG.getStringList("lore");
+        for (int i = 0; i < configLore.size(); i++) {
+            configLore.set(i, ChatColor.translateAlternateColorCodes('&', configLore.get(i)));
+        }
+        lore.addAll(configLore);
+
+        // Add rest of the lore
         lore.add("");
         lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Experience: "
                 + ChatColor.DARK_AQUA + this.experience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level));
-        lore.add("");
-        lore.add(ChatColor.GRAY + "Perks:");
         //TODO: List perks here
+        //        lore.add("");
+        //        lore.add(ChatColor.GRAY + "Perks:");
 
         return lore;
     }

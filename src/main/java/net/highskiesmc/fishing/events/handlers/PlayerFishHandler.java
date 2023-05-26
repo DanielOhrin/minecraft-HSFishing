@@ -9,6 +9,7 @@ import net.highskiesmc.fishing.events.events.IslandFishCaughtEvent;
 import net.highskiesmc.fishing.util.DropEntry;
 import net.highskiesmc.fishing.util.DropTable;
 import net.highskiesmc.fishing.util.HSFishingRod;
+import net.highskiesmc.fishing.util.ItemLauncher;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PlayerFishHandler implements Listener {
     private final HSFishing MAIN;
@@ -59,10 +61,13 @@ public class PlayerFishHandler implements Listener {
             HSFishingRod hsFishingRod;
             try {
                 hsFishingRod = new HSFishingRod(this.MAIN,
-                        e.getPlayer().getInventory().getItemInMainHand());
+                        player.getInventory().getItemInMainHand());
             } catch (IllegalArgumentException ex) {
-                //TODO: Provide player feedback that they must use a valid fishing rod
-
+                // Provide player feedback that they must use a valid fishing rod
+                e.setCancelled(true);
+                player.sendMessage(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "[!] " +
+                        ChatColor.RED + "You can only catch fish on an island where you have permission to!");
+                player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
                 return;
             } catch (IOException ex) {
                 this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
@@ -70,13 +75,14 @@ public class PlayerFishHandler implements Listener {
                 return;
             }
 
-            //TODO: Grab item-luck and experience from fishing rod
+            //TODO: Grab item-luck and experience boost from fishing rod
+            //TODO: apply item-luck before getting an initial drop
             DropTable dropTable = hsFishingRod.getDropTable();
-            List<DropEntry> drops = new ArrayList<>();
-            drops.add(dropTable.getRandomDrop());
+            List<DropEntry> initialDrops = new ArrayList<>();
+            initialDrops.add(dropTable.getRandomDrop());
 
             // Call the custom event
-            IslandFishCaughtEvent event = new IslandFishCaughtEvent(player, drops, hsFishingRod,
+            IslandFishCaughtEvent event = new IslandFishCaughtEvent(player, initialDrops, hsFishingRod,
                     island, e.getHook());
             Bukkit.getPluginManager().callEvent(event);
 
@@ -84,8 +90,21 @@ public class PlayerFishHandler implements Listener {
                 e.setCancelled(true);
                 return;
             }
-
+            List<DropEntry> drops = event.getDroppedItems();
+            //TODO: calculate total experience
+            //TODO: Add exp and currentExp to rod
             //TODO: Throw drops to player here
+            ItemLauncher.launchItems(
+                    this.MAIN,
+                    event.getHook().getLocation(),
+                    player,
+                    drops.stream().map(DropEntry::getItemStack).collect(Collectors.toList()),
+                    hsFishingRod.getRodConfig()
+            );
+
+            //TODO: replace their rod with the updated one
         }
     }
+
+    //TODO: Make a reelItems(List<DropEntry> entry method)
 }
