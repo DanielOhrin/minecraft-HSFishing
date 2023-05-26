@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +62,7 @@ public class PlayerFishHandler implements Listener {
             HSFishingRod hsFishingRod;
             try {
                 hsFishingRod = new HSFishingRod(this.MAIN,
-                        player.getInventory().getItemInMainHand());
+                        player.getInventory().getItemInMainHand(), player);
             } catch (IllegalArgumentException ex) {
                 // Provide player feedback that they must use a valid fishing rod
                 e.setCancelled(true);
@@ -75,9 +76,12 @@ public class PlayerFishHandler implements Listener {
                 return;
             }
 
-            //TODO: Grab item-luck and experience boost from fishing rod
-            //TODO: apply item-luck before getting an initial drop
+            // Grab item-luck and experience boost from fishing rod
+            // Apply item-luck before getting an initial drop
             DropTable dropTable = hsFishingRod.getDropTable();
+            double itemLuck = hsFishingRod.getItemLuck();
+            dropTable.addWeight(itemLuck);
+
             List<DropEntry> initialDrops = new ArrayList<>();
             initialDrops.add(dropTable.getRandomDrop());
 
@@ -91,10 +95,24 @@ public class PlayerFishHandler implements Listener {
                 return;
             }
 
+            // Calculate total experience gain
+            double expMulti = hsFishingRod.getExperienceMultiplier();
             List<DropEntry> drops = event.getDroppedItems();
-            //TODO: calculate total experience
-            //TODO: Add exp and currentExp to rod
-            //TODO: Throw drops to player here
+
+            double totalExp = 0;
+            for (DropEntry drop : drops) {
+                totalExp += drop.getExperience();
+            }
+
+            // Apply the multiplier
+            totalExp = Double.parseDouble(new DecimalFormat("#.##").format(totalExp * expMulti));
+
+            // Add exp to rod
+            hsFishingRod.addExperience(totalExp);
+            // Add to total caught amount
+            hsFishingRod.addCaughtItems(drops.size());
+
+            // Throw drops to player
             ItemLauncher.launchItems(
                     this.MAIN,
                     event.getHook().getLocation(),
@@ -103,7 +121,8 @@ public class PlayerFishHandler implements Listener {
                     hsFishingRod.getRodConfig()
             );
 
-            //TODO: replace their rod with the updated one
+            // Replace their rod with the updated one
+            player.getInventory().setItemInMainHand(hsFishingRod.getRod());
         }
     }
 }

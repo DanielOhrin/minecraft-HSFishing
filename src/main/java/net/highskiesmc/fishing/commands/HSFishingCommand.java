@@ -47,7 +47,7 @@ public class HSFishingCommand implements CommandExecutor {
                     break;
             }
         }
-        return false;
+        return error(sender, USAGE_MAIN);
     }
 
     private boolean reload(CommandSender sender) {
@@ -78,7 +78,7 @@ public class HSFishingCommand implements CommandExecutor {
         if (sender.hasPermission("hsfishing.rod.get")) {
             if (sender instanceof Player) {
                 try {
-                    ((Player) sender).getInventory().addItem(new HSFishingRod(this.MAIN).getRod());
+                    ((Player) sender).getInventory().addItem(new HSFishingRod(this.MAIN, (Player) sender).getRod());
                     return success(sender, SUCCESS);
                 } catch (IOException ex) {
                     this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));

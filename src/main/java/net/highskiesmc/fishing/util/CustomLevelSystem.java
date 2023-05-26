@@ -31,7 +31,7 @@ public class CustomLevelSystem {
         return EXPERIENCE_TABLE.get(level);
     }
 
-    public static int getNextLevel(int currentLevel, int currentExperience) {
+    public static int getNextLevel(int currentLevel, double currentExperience) {
         // Find the next level based on the current level and experience
         int experienceRequired = getExperienceRequiredForLevel(currentLevel);
         while (currentExperience >= experienceRequired && currentLevel < MAX_LEVEL) {
