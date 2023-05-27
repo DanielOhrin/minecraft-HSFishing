@@ -33,7 +33,7 @@ public class UpgradeRodCommand implements CommandExecutor {
             } catch (IOException | IllegalArgumentException ignored) {}
 
             if (rod != null) {
-                String oldDisplayName = rod.getDisplayName().split("&f\\(")[0].trim();
+                String oldDisplayName = rod.getDisplayName().split("\\(")[0].trim();
                 try {
                     rod.upgradeMilestone();
                 } catch (OperationNotSupportedException ignored) {

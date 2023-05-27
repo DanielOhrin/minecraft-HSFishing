@@ -12,7 +12,7 @@ import org.bukkit.event.Listener;
 public class RodUpgradedHandler implements Listener {
     private static final Sound SOUND = Sound.BLOCK_ANVIL_USE;
     private static final String TITLE = ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "Rod Upgraded";
-    private static final String SUBTITLE = "{old-rod} " + ChatColor.WHITE + "-> {new-rod}";
+    private static final String SUBTITLE = "{old-rod}-> {new-rod}";
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRodUpgrade(RodUpgradedEvent e) {
         // Send player feedback
