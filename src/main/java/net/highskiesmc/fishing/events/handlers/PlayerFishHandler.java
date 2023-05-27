@@ -1,7 +1,5 @@
 package net.highskiesmc.fishing.events.handlers;
 
-import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
-import com.bgsoftware.superiorskyblock.api.island.Island;
 import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.events.events.FishCaughtEvent;
 import net.highskiesmc.fishing.util.DropEntry;
@@ -33,7 +31,6 @@ public class PlayerFishHandler implements Listener {
     @EventHandler
     public void onFishCaught(PlayerFishEvent e) {
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
-            Island island = SuperiorSkyblockAPI.getIslandAt(e.getHook().getLocation());
             Player player = e.getPlayer();
 
             // Clear existing drops
@@ -70,8 +67,7 @@ public class PlayerFishHandler implements Listener {
             initialDrops.add(dropTable.getRandomDrop());
 
             // Call the custom event
-            FishCaughtEvent event = new FishCaughtEvent(player, initialDrops, hsFishingRod,
-                    island, e.getHook());
+            FishCaughtEvent event = new FishCaughtEvent(player, initialDrops, hsFishingRod, e.getHook());
             Bukkit.getPluginManager().callEvent(event);
 
             if (event.isCancelled()) {

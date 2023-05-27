@@ -33,13 +33,14 @@ public class UpgradeRodCommand implements CommandExecutor {
             } catch (IOException ignored) {}
 
             if (rod != null) {
+                String oldDisplayName = rod.getDisplayName().split("\\(")[0];
                 try {
                     rod.upgradeMilestone();
                 } catch (OperationNotSupportedException ignored) {
                     return LogUtils.error(sender, ROD_NOT_READY, this.MAIN);
                 }
 
-                RodUpgradedEvent event = new RodUpgradedEvent(rod);
+                RodUpgradedEvent event = new RodUpgradedEvent(oldDisplayName, rod);
                 Bukkit.getPluginManager().callEvent(event);
 
                 if (!event.isCancelled()) {

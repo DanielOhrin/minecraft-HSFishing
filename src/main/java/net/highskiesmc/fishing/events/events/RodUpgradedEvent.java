@@ -11,9 +11,11 @@ import org.bukkit.event.HandlerList;
 public class RodUpgradedEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
     private final HSFishingRod FISHING_ROD;
+    private final String OLD_DISPLAY_NAME;
     private boolean cancellable;
 
-    public RodUpgradedEvent(HSFishingRod rod) {
+    public RodUpgradedEvent(String oldDisplayName, HSFishingRod rod) {
+        this.OLD_DISPLAY_NAME = oldDisplayName;
         this.FISHING_ROD = rod;
     }
 
@@ -21,6 +23,9 @@ public class RodUpgradedEvent extends Event implements Cancellable {
         return this.FISHING_ROD;
     }
 
+    public String getOldDisplayName() {
+        return this.OLD_DISPLAY_NAME;
+    }
 
     @Override
     public HandlerList getHandlers() {
