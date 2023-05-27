@@ -346,6 +346,7 @@ public class HSFishingRod {
     public void upgradeMilestone() throws OperationNotSupportedException {
         if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
             this.upgrade();
+            this.findRodConfig(null);
         } else {
             throw new OperationNotSupportedException("Rod is not ready to upgrade its milestone.");
         }
