@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -277,6 +278,21 @@ public class HSFishingRod {
         return this.DROP_TABLE;
     }
 
+    public void setItemLuck(double newLuck) {
+        this.itemLuck = newLuck;
+    }
+
+    public void setExperienceMultiplier(double newMulti) {
+        this.experienceMultiplier = newMulti;
+    }
+
+    public void setLevel(int level) {
+        if (level <= CustomLevelSystem.MAX_LEVEL) {
+            this.level = level;
+            this.currentExperience = 0;
+        }
+    }
+
     public double getItemLuck() {
         return this.itemLuck;
     }
@@ -321,5 +337,17 @@ public class HSFishingRod {
 
     public Player getPlayer() {
         return this.PLAYER;
+    }
+
+    /**
+     * Tries to upgrade the rod's milestone
+     * @throws OperationNotSupportedException When the rod is not ready to upgrade
+     */
+    public void upgradeMilestone() throws OperationNotSupportedException {
+        if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
+            this.upgrade();
+        } else {
+            throw new OperationNotSupportedException("Rod is not ready to upgrade its milestone.");
+        }
     }
 }

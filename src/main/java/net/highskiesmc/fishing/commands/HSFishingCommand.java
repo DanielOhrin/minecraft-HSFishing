@@ -3,12 +3,11 @@ package net.highskiesmc.fishing.commands;
 import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.ItemSerializer;
-import org.bukkit.ChatColor;
+import net.highskiesmc.fishing.util.LogUtils;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,17 +17,9 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class HSFishingCommand implements CommandExecutor {
-    private final static String USAGE_MAIN = "/hsprogression <rod>";
-    private final static String USAGE_ROD = "hsprogression <rod> <get>";
-    private final static String USAGE_ROD_ADDDROP = "hsprogression rod addDrop <rod-key> <drop-key> <weight> " +
-            "<experience>";
-    private final static String ERROR_PERMISSION = "Insufficient permission.";
-    private final static String ERROR_UNKNOWN = "An unknown error occurred.";
-    private final static String ERROR_NUMBERS = "Invalid number inputs received.";
-    private final static String ERROR_WORDS = "Invalid word arguments given.";
-    private final static String CONSOLE_ONLY = "That command can only be used by a console!";
-    private final static String PLAYER_ONLY = "That command can only be used by a player!";
-    private final static String SUCCESS = "Success!";
+    private final static String USAGE_MAIN = "/hsfishing <rod>";
+    private final static String USAGE_ROD = "hsfishing <rod> <get>";
+    private final static String USAGE_ROD_ADDDROP = "hsfishing rod addDrop <rod-key> <drop-key> <weight> <experience>";
     private final HSFishing MAIN;
 
     public HSFishingCommand(HSFishing main) {
@@ -47,15 +38,15 @@ public class HSFishingCommand implements CommandExecutor {
                     break;
             }
         }
-        return error(sender, USAGE_MAIN);
+        return LogUtils.error(sender, USAGE_MAIN, this.MAIN);
     }
 
     private boolean reload(CommandSender sender) {
         if (sender.hasPermission("hsfishing.reload")) {
             this.MAIN.reloadConfig();
-            return success(sender, SUCCESS);
+            return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
         } else {
-            return error(sender, ERROR_PERMISSION);
+            return LogUtils.error(sender, LogUtils.ERROR_PERMISSION, this.MAIN);
         }
     }
 
@@ -71,7 +62,7 @@ public class HSFishingCommand implements CommandExecutor {
             }
         }
 
-        return usage(sender, USAGE_ROD);
+        return LogUtils.usage(sender, USAGE_ROD, this.MAIN);
     }
 
     private boolean getRod(CommandSender sender) {
@@ -79,16 +70,16 @@ public class HSFishingCommand implements CommandExecutor {
             if (sender instanceof Player) {
                 try {
                     ((Player) sender).getInventory().addItem(new HSFishingRod(this.MAIN, (Player) sender).getRod());
-                    return success(sender, SUCCESS);
+                    return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
                 } catch (IOException ex) {
                     this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
-                    return error(sender, ERROR_UNKNOWN);
+                    return LogUtils.error(sender, LogUtils.ERROR_UNKNOWN, this.MAIN);
                 }
             } else {
-                return error(sender, PLAYER_ONLY);
+                return LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
             }
         } else {
-            return error(sender, ERROR_PERMISSION);
+            return LogUtils.error(sender, LogUtils.ERROR_PERMISSION, this.MAIN);
         }
 
     }
@@ -113,7 +104,7 @@ public class HSFishingCommand implements CommandExecutor {
                         weight = Double.parseDouble(args[4]);
                         experience = Double.parseDouble(args[5]);
                     } catch (NumberFormatException ex) {
-                        return error(sender, ERROR_NUMBERS);
+                        return LogUtils.error(sender, LogUtils.ERROR_NUMBERS, this.MAIN);
                     }
 
                     final ConfigurationSection CONFIG = this.MAIN.getConfig();
@@ -131,58 +122,28 @@ public class HSFishingCommand implements CommandExecutor {
                                             ".experience", experience);
                                     this.MAIN.saveConfig();
 
-                                    return success(sender, SUCCESS);
+                                    return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
                                 } catch (IOException ex) {
                                     this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
-                                    return error(sender, ERROR_UNKNOWN);
+                                    return LogUtils.error(sender, LogUtils.ERROR_UNKNOWN, this.MAIN);
                                 }
                             } else {
-                                return error(sender, "You must be holding the drop.");
+                                return LogUtils.error(sender, "You must be holding the drop.", this.MAIN);
                             }
                         } else {
-                            return error(sender, "Drop key name already in use.");
+                            return LogUtils.error(sender, "Drop key name already in use.", this.MAIN);
                         }
                     } else {
-                        return error(sender, ERROR_WORDS);
+                        return LogUtils.error(sender, LogUtils.ERROR_WORDS, this.MAIN);
                     }
                 } else {
-                    return error(sender, USAGE_ROD_ADDDROP);
+                    return LogUtils.error(sender, USAGE_ROD_ADDDROP, this.MAIN);
                 }
             } else {
-                return error(sender, PLAYER_ONLY);
+                return LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
             }
         } else {
-            return error(sender, ERROR_PERMISSION);
+            return LogUtils.error(sender, LogUtils.ERROR_PERMISSION, this.MAIN);
         }
-    }
-
-    private boolean success(CommandSender sender, String success) {
-        if (sender instanceof Player) {
-            sender.sendMessage(ChatColor.GREEN + success);
-        } else if (sender instanceof ConsoleCommandSender) {
-            this.MAIN.getLogger().finest(success);
-        }
-
-        return true;
-    }
-
-    private boolean error(CommandSender sender, String error) {
-        if (sender instanceof Player) {
-            sender.sendMessage(ChatColor.RED + error);
-        } else if (sender instanceof ConsoleCommandSender) {
-            this.MAIN.getLogger().warning(error);
-        }
-
-        return false;
-    }
-
-    private boolean usage(CommandSender sender, String usage) {
-        if (sender instanceof Player) {
-            sender.sendMessage(ChatColor.RED + "Incorrect usage! " + usage);
-        } else if (sender instanceof ConsoleCommandSender) {
-            this.MAIN.getLogger().warning("Incorrect usage! " + usage);
-        }
-
-        return false;
     }
 }
