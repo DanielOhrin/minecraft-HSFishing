@@ -13,7 +13,7 @@ import org.bukkit.util.Vector;
 import java.util.List;
 
 public class ItemLauncher {
-    private static final double LAUNCH_SPEED = 0.75; // Adjust this value to control the launch speed
+    private static final double LAUNCH_SPEED = 1.5; // Adjust this value to control the launch speed
     private static final double MIN_DISTANCE = 0.2; // Minimum distance to consider the item reached the player
     private static final int MAX_TICKS = 100; // Maximum number of ticks before stopping the launching
 

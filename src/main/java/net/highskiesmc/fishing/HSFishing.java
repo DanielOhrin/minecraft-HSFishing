@@ -5,6 +5,7 @@ import net.highskiesmc.fishing.commands.HSFishingTabCompleter;
 import net.highskiesmc.fishing.events.handlers.FishCaughtHandler;
 import net.highskiesmc.fishing.events.handlers.PlayerFishHandler;
 import net.highskiesmc.fishing.events.handlers.RodLevelUpHandler;
+import net.highskiesmc.fishing.events.handlers.RodMilestoneUnlockedHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,6 +22,7 @@ public final class HSFishing extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerFishHandler(this), this);
         Bukkit.getPluginManager().registerEvents(new FishCaughtHandler(), this);
         Bukkit.getPluginManager().registerEvents(new RodLevelUpHandler(), this);
+        Bukkit.getPluginManager().registerEvents(new RodMilestoneUnlockedHandler(), this);
     }
 
     @Override

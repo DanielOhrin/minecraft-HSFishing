@@ -2,6 +2,7 @@ package net.highskiesmc.fishing.util;
 
 import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.events.events.RodLevelUpEvent;
+import net.highskiesmc.fishing.events.events.RodMilestoneUnlockedEvent;
 import net.highskiesmc.fishing.util.enums.Perk;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,6 +16,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,7 @@ public class HSFishingRod {
     private int level = 1;
     private double experienceMultiplier = 1.0D;
     private final DropTable DROP_TABLE;
+    private int currentMilestone;
 
     public HSFishingRod(HSFishing main, ItemStack existingRod, Player player) throws IOException {
         this.MAIN = main;
@@ -53,7 +56,7 @@ public class HSFishingRod {
 
         // Parse existing Rod
         this.parseRod(existingRod);
-        this.findRodConfig();
+        this.findRodConfig(null);
 
         // Fetch the drop table
         this.DROP_TABLE = new DropTable(this.ROD_CONFIG.getConfigurationSection("drop-table"));
@@ -71,7 +74,7 @@ public class HSFishingRod {
         this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
 
         // Construct new rod
-        this.findRodConfig();
+        this.findRodConfig(null);
 
         // Fetch the drop table
         this.DROP_TABLE = new DropTable(this.ROD_CONFIG.getConfigurationSection("drop-table"));
@@ -79,6 +82,12 @@ public class HSFishingRod {
         this.PLAYER = player;
     }
 
+    /**
+     * Creates a new HSFishingRod from an existing one
+     *
+     * @param existingRod Fishing rod
+     * @throws IllegalArgumentException Provided rod was invalid
+     */
     private void parseRod(ItemStack existingRod) throws IllegalArgumentException {
         PersistentDataContainer pdc;
         if (existingRod.hasItemMeta()) {
@@ -130,26 +139,34 @@ public class HSFishingRod {
         return rod;
     }
 
+    /**
+     * @return Display name of the current rod
+     */
     public String getDisplayName() {
         return ChatColor.translateAlternateColorCodes('&', this.ROD_CONFIG.getString("display-name")) + ' '
                 + ChatColor.WHITE + '(' + ChatColor.GRAY + "Level " + this.level + ChatColor.WHITE + ')';
     }
 
+    /**
+     * @return Lore of the current rod
+     */
     public List<String> getLore() {
         List<String> lore = new ArrayList<>();
         lore.add("");
 
         // Add lore from ROD_CONFIG
         List<String> configLore = this.ROD_CONFIG.getStringList("lore");
-        for (int i = 0; i < configLore.size(); i++) {
-            configLore.set(i, ChatColor.translateAlternateColorCodes('&', configLore.get(i)));
-        }
+        configLore.replaceAll(textToTranslate -> ChatColor.translateAlternateColorCodes('&', textToTranslate));
         lore.addAll(configLore);
 
         // Add rest of the lore
         lore.add("");
         lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Experience: "
-                + ChatColor.DARK_AQUA + this.currentExperience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level));
+                + ChatColor.DARK_AQUA + this.currentExperience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1));
+        if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
+            // Milestone unlocked lore
+            lore.add(ChatColor.WHITE + "^ " + ChatColor.LIGHT_PURPLE + "/upgraderod");
+        }
 
         // List perks
         lore.add("");
@@ -164,58 +181,92 @@ public class HSFishingRod {
     }
 
     /**
-     * Sets the ConfigurationSection for the fishing rod
+     * If null is provided, it will set the config for the rod
+     *
+     * @param level Optional level to search for
+     * @return Milestone number
      */
-    private void findRodConfig() {
+    private Integer findRodConfig(Integer level) {
         final ConfigurationSection CONFIG = this.MAIN.getConfig();
         final List<String> KEYS = new ArrayList<>(CONFIG.getKeys(false));
+
+        Integer rodMilestone = null;
+
         // Figure out which config to use
         for (int i = KEYS.size() - 1; i >= 0; i--) {
-            if (CONFIG.getInt(KEYS.get(i) + ".minimum-level") <= this.level) {
-                this.ROD_CONFIG = CONFIG.getConfigurationSection(KEYS.get(i));
+            if (CONFIG.getInt(KEYS.get(i) + ".minimum-level") <= (level == null ? this.level : level)) {
+                rodMilestone = i + 1;
+                if (level == null) {
+                    this.currentMilestone = i + 1;
+                    this.ROD_CONFIG = CONFIG.getConfigurationSection(KEYS.get(i));
+                }
                 break;
+            }
+        }
+
+        return rodMilestone;
+    }
+
+    /**
+     * Adds experience to the rod and handles upgrading level/checking for milestone upgrades.
+     *
+     * @param experience Amount of experience to add
+     */
+    public void addExperience(double experience) {
+        // Check if they were notified of the potential milestone unlocked
+        boolean wasNotified = this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1);
+
+        this.currentExperience = Math.min(CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1),
+                this.currentExperience + experience);
+
+        // Try to level up the rod
+        int nextLevel = CustomLevelSystem.getNextLevel(this.level, this.currentExperience);
+
+        if (nextLevel > this.level) {
+            // Check if new level was a milestone upgrade
+            boolean isMilestoneUpgrade = wasNotified || findRodConfig(nextLevel) > this.currentMilestone;
+
+            if (isMilestoneUpgrade) {
+                if (!wasNotified) {
+                    Bukkit.getPluginManager().callEvent(new RodMilestoneUnlockedEvent(this));
+                }
+            } else {
+                // Update necessary data and call custom event
+                this.upgrade();
+
+                // Add random perk
+                HashMap<Perk, Double> perkAdded = this.getRandomPerk();
+                if (!perkAdded.isEmpty()) {
+                    Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
+                    switch (perkEntry.getKey()) {
+                        case ITEM_FIND:
+                            this.itemLuck =
+                                    Double.parseDouble(new DecimalFormat("#.##").format(this.itemLuck + perkEntry.getValue()));
+                            break;
+                        case EXPERIENCE_MULTIPLIER:
+                            this.experienceMultiplier =
+                                    Double.parseDouble(new DecimalFormat("#.##").format(this.experienceMultiplier + perkEntry.getValue()));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                // Update the rod configuration
+                findRodConfig(null);
+
+                // Call the custom HSRodLevelUpEvent
+                Bukkit.getPluginManager().callEvent(new RodLevelUpEvent(this, perkAdded));
             }
         }
     }
 
-    public void addExperience(double experience) {
-        this.currentExperience = Math.min(CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1),
-                this.currentExperience + experience);
-
-        this.totalExperience += experience;
-
-        // Try to level up the rod
-        // TODO: Check if new level was a milestone upgrade
-        int nextLevel = CustomLevelSystem.getNextLevel(this.level, this.currentExperience);
-        //TODO BEFORE entering that new loop, check if milestone is reached
-        //TODO make method for UpgradeLevel
-        if (nextLevel > this.level) {
-            // Update necessary data and call custom event
-            this.level = nextLevel;
-            this.currentExperience = 0;
-
-            // Add random perk
-            HashMap<Perk, Double> perkAdded = this.addRandomPerk();
-            if (!perkAdded.isEmpty()) {
-                Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
-                switch (perkEntry.getKey()) {
-                    case ITEM_FIND:
-                        this.itemLuck += perkEntry.getValue();
-                        break;
-                    case EXPERIENCE_MULTIPLIER:
-                        this.experienceMultiplier += perkEntry.getValue();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            // Update the rod configuration
-            findRodConfig();
-
-            // Call the custom HSRodLevelUpEvent
-            Bukkit.getPluginManager().callEvent(new RodLevelUpEvent(this, perkAdded));
-        }
+    /**
+     * Upgrades a rod to the next level
+     */
+    public void upgrade() {
+        this.currentExperience = 0;
+        this.level = Math.min(this.level + 1, CustomLevelSystem.MAX_LEVEL);
     }
 
     public ConfigurationSection getRodConfig() {
@@ -234,11 +285,19 @@ public class HSFishingRod {
         return this.experienceMultiplier;
     }
 
+    /**
+     * Adds to the rod's total items caught
+     *
+     * @param amount Amount of items to add
+     */
     public void addCaughtItems(int amount) {
         this.totalItemsCaught += amount;
     }
 
-    private HashMap<Perk, Double> addRandomPerk() {
+    /**
+     * @return Random perk from the Perk enum, or an empty map
+     */
+    private HashMap<Perk, Double> getRandomPerk() {
         HashMap<Perk, Double> map = new HashMap<>();
         // Obtain random perk
         List<Perk> perks = Arrays.stream(Perk.values()).collect(Collectors.toList());

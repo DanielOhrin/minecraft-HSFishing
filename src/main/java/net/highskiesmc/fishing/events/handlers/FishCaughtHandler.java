@@ -33,7 +33,7 @@ public class FishCaughtHandler implements Listener {
             String displayName = drop.getItemMeta().hasDisplayName()
                     ? drop.getItemMeta().getDisplayName()
                     :
-                    Arrays.stream(drop.getType().name().split("-")).map(str -> str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase()).collect(Collectors.joining(" "));
+                    Arrays.stream(drop.getType().name().split("_")).map(str -> str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase()).collect(Collectors.joining(" "));
             String xp = new DecimalFormat("#.##").format(entry.getExperience() * expMulti);
             player.sendMessage(
                     MESSAGE
