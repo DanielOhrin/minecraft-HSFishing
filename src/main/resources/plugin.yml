@@ -7,3 +7,4 @@ commands:
   hsfishing:
     aliases:
       - hsf
+  upgraderod:

@@ -6,8 +6,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class DropTable {
     private final List<DropEntry> DROP_ENTRIES;
@@ -27,6 +29,9 @@ public class DropTable {
 
             this.addDropEntry(new DropEntry(item, weight, experience));
         }
+
+        // Sort the drops in descending order by weight
+        this.DROP_ENTRIES.sort(Comparator.comparingDouble(DropEntry::getWeight).reversed());
     }
 
     public void addDropEntry(DropEntry dropEntry) {
