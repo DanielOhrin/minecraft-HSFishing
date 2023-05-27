@@ -46,7 +46,7 @@ public class HSFishingRod {
     private final DropTable DROP_TABLE;
     private int currentMilestone;
 
-    public HSFishingRod(HSFishing main, ItemStack existingRod, Player player) throws IOException {
+    public HSFishingRod(HSFishing main, ItemStack existingRod, Player player) throws IOException, IllegalArgumentException {
         this.MAIN = main;
         this.LEVEL_KEY = new NamespacedKey(this.MAIN, "rod-level");
         this.TOTAL_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-total-experience");
