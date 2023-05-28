@@ -60,4 +60,8 @@ Rarities:
 - Special
 
 Unique and Special are currently unused by the plugin itself. These rarities and their colors follow the universal rarity system of HighSkiesMC.  
-The % chances can be edited in the `DropTable` class.
+The % chances can be edited in the `DropTable` class.  
+
+## Data Storage/Item Tracking
+
+Each item's stats are tracked using persistent data containers (PDCs). Some stats are not currently used, but are there for future implementations.
