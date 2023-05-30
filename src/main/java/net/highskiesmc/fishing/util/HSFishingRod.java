@@ -46,7 +46,8 @@ public class HSFishingRod {
     private final DropTable DROP_TABLE;
     private int currentMilestone;
 
-    public HSFishingRod(HSFishing main, ItemStack existingRod, Player player) throws IOException, IllegalArgumentException {
+    public HSFishingRod(HSFishing main, ItemStack existingRod, Player player) throws IOException,
+            IllegalArgumentException {
         this.MAIN = main;
         this.LEVEL_KEY = new NamespacedKey(this.MAIN, "rod-level");
         this.TOTAL_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-total-experience");
@@ -341,14 +342,27 @@ public class HSFishingRod {
 
     /**
      * Tries to upgrade the rod's milestone
+     *
      * @throws OperationNotSupportedException When the rod is not ready to upgrade
      */
-    public void upgradeMilestone() throws OperationNotSupportedException {
-        if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
-            this.upgrade();
-            this.findRodConfig(null);
+    public void upgradeMilestone(boolean ignoreLevel) throws OperationNotSupportedException {
+        if (!ignoreLevel) {
+            if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
+                this.upgrade();
+                this.findRodConfig(null);
+            } else {
+                throw new OperationNotSupportedException("Rod is not ready to upgrade its milestone.");
+            }
         } else {
-            throw new OperationNotSupportedException("Rod is not ready to upgrade its milestone.");
+            this.currentExperience = 0;
+            List<String> keys = new ArrayList<>(this.MAIN.getConfig().getKeys(false));
+            int currentIndex = keys.indexOf(this.ROD_CONFIG.getCurrentPath());
+            if (currentIndex != keys.size() - 1) {
+                this.level = this.MAIN.getConfig().getInt(keys.get(currentIndex + 1) + ".minimum-level");
+                findRodConfig(null);
+            } else {
+                this.level = -1;
+            }
         }
     }
 }
