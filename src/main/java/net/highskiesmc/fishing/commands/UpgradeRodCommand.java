@@ -1,25 +1,35 @@
 package net.highskiesmc.fishing.commands;
 
 import net.highskiesmc.fishing.HSFishing;
-import net.highskiesmc.fishing.events.events.RodUpgradedEvent;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.LogUtils;
+import net.highskiesmc.fishing.util.UpgradeRodGUI;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class UpgradeRodCommand implements CommandExecutor {
-    private static final String ROD_NOT_READY = "Must be holding a rod that is ready to upgrade!";
+    private static final String ERROR_VALID_ROD = "Must be holding a valid rod!";
+    private static final String ERROR_ROD_MAX_MILESTONE = "Held rod has already reached the max milestone!";
     private final HSFishing MAIN;
+    private final HashMap<UUID, UpgradeRodGUI> OPEN_UPGRADEROD_GUIS;
 
-    public UpgradeRodCommand(HSFishing main) {
+    public UpgradeRodCommand(HSFishing main, HashMap<UUID, UpgradeRodGUI> openGUIs) {
         this.MAIN = main;
+        this.OPEN_UPGRADEROD_GUIS = openGUIs;
     }
 
     @Override
@@ -27,27 +37,72 @@ public class UpgradeRodCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             ItemStack heldItem = player.getInventory().getItemInMainHand();
-            HSFishingRod rod = null;
+            HSFishingRod oldRod = null;
+            HSFishingRod newRod = null;
             try {
-                rod = new HSFishingRod(this.MAIN, heldItem, player);
+                oldRod = new HSFishingRod(this.MAIN, heldItem, player);
+                newRod = new HSFishingRod(this.MAIN, heldItem, player);
             } catch (IOException | IllegalArgumentException ignored) {}
 
-            if (rod != null) {
-                String oldDisplayName = rod.getDisplayName().split("\\(")[0].trim();
+            if (oldRod != null && newRod != null) {
+                boolean rodIsReady = false;
                 try {
-                    rod.upgradeMilestone();
+                    newRod.upgradeMilestone(false);
+                    rodIsReady = true;
                 } catch (OperationNotSupportedException ignored) {
-                    return LogUtils.error(sender, ROD_NOT_READY, this.MAIN);
+                    try {
+                        newRod.upgradeMilestone(true);
+                    } catch (OperationNotSupportedException ignore) {}
                 }
 
-                RodUpgradedEvent event = new RodUpgradedEvent(oldDisplayName, rod);
-                Bukkit.getPluginManager().callEvent(event);
-
-                if (!event.isCancelled()) {
-                    player.getInventory().setItemInMainHand(rod.getRod());
+                // Check if the rod is max level
+                if (newRod.getLevel() == -1) {
+                    return LogUtils.error(sender, ERROR_ROD_MAX_MILESTONE, this.MAIN);
                 }
+
+                // Create the Inventory (GUI)
+                Inventory inv = Bukkit.createInventory(player, InventoryType.CHEST,
+                        ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "Upgrade Rod");
+
+                // Set the clickable slots
+                int[] clickableSlots = new int[] {12, 13, 14};
+                ItemStack clickableItem = null;
+                if (rodIsReady) {
+                    clickableItem = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+                    ItemMeta meta = clickableItem.getItemMeta();
+                    meta.setDisplayName(ChatColor.GREEN.toString() + ChatColor.BOLD + "CONFIRM");
+                    clickableItem.setItemMeta(meta);
+                } else {
+                    clickableItem = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+                    ItemMeta meta = clickableItem.getItemMeta();
+                    meta.setDisplayName(ChatColor.RED.toString() + ChatColor.BOLD + "NOT READY");
+                    clickableItem.setItemMeta(meta);
+                }
+                for(int slot : clickableSlots) {
+                    inv.setItem(slot, clickableItem);
+                }
+                // Set the old and new rod slots
+                inv.setItem(11, oldRod.getRod());
+                inv.setItem(15, newRod.getRod());
+
+                // Fill the rest of the inventory with a filler item
+                ItemStack filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+                ItemMeta meta = filler.getItemMeta();
+                meta.setDisplayName(" ");
+                filler.setItemMeta(meta);
+                for (int i = 0; i < inv.getSize(); i++) {
+                    if (inv.getItem(i) == null) {
+                        inv.setItem(i, filler);
+                    }
+                }
+                // Add the GUI to the OPEN guis HashMap
+                UpgradeRodGUI upgradeGUI = new UpgradeRodGUI(oldRod, newRod, inv, rodIsReady);
+                this.OPEN_UPGRADEROD_GUIS.put(player.getUniqueId(), upgradeGUI);
+
+                // Open the inventory
+                player.openInventory(inv);
             } else {
-                LogUtils.error(sender, ROD_NOT_READY, this.MAIN);
+                LogUtils.error(sender, ERROR_VALID_ROD, this.MAIN);
             }
         } else {
             LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
