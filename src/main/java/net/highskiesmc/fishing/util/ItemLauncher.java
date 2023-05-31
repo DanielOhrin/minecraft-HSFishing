@@ -35,6 +35,14 @@ public class ItemLauncher {
                     if (droppedItem.isValid() && !droppedItem.isDead() && player.isOnline() && player.getWorld() == droppedItem.getWorld()) {
                         Vector direction = player.getEyeLocation().subtract(droppedItem.getLocation()).toVector();
 
+                        // Check if the item has reached the player's location
+                        if (direction.lengthSquared() <= MIN_DISTANCE) {
+                            // Stop all movement and prevent another launch
+                            droppedItem.setVelocity(new Vector(0, 0, 0));
+                            cancel();
+                            return;
+                        }
+
                         // Check if the maximum number of ticks has been reached
                         ticks++;
                         if (ticks > MAX_TICKS) {
@@ -45,13 +53,11 @@ public class ItemLauncher {
 
                         // Update the item's position
                         droppedItem.setVelocity(direction.normalize().multiply(LAUNCH_SPEED));
+                        
+                        // Create particle effect to connect item to the player
+                        Location particleLocation = droppedItem.getLocation().add(0, 0.5, 0);
+                        player.getWorld().spawnParticle(this.PARTICLE, particleLocation, 1, 0, 0, 0, 0);
 
-                        // Check if the item has reached the player's location
-                        if (direction.lengthSquared() <= MIN_DISTANCE) {
-                            // Create particle effect to connect item to the player
-                            Location particleLocation = droppedItem.getLocation().add(0, 0.5, 0);
-                            player.getWorld().spawnParticle(this.PARTICLE, particleLocation, 1, 0, 0, 0, 0);
-                        }
                     } else {
                         // Item is no longer valid or dead
                         cancel();
