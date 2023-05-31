@@ -32,13 +32,13 @@ public class HSFishingTabCompleter implements TabCompleter {
                 if (args[0].equalsIgnoreCase("rod")) {
                     if (sender.hasPermission("hsfishing.tab.rod")) {
                         result.add("get");
-                        result.add("addDrop");
+                        result.add("add-drop");
                     }
                 }
                 break;
             case 3:
                 if (args[0].equalsIgnoreCase("rod")) {
-                    if (args[1].equalsIgnoreCase("adddrop")) {
+                    if (args[1].equalsIgnoreCase("add-drop")) {
                         if (sender.hasPermission("hsfishing.rod.add-drop")) {
                             result.addAll(this.MAIN.getConfig().getKeys(false));
                         }
