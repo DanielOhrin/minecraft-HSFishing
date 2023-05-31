@@ -25,7 +25,7 @@ Every key is a "milestone," which just means it will require the player to use /
 
 ## Drops System
 
-The drops system is fairly simple. When a player adds a `Drop`, their held itemstack is serialized using the `ItemSerializer` class, and added to the config. This process is in the `HSFishingCommand` class under /hsfishing rod addDrop. 
+The drops system is fairly simple. When a player adds a `Drop`, their held itemstack is serialized using the `ItemSerializer` class, and added to the config. This process is in the `HSFishingCommand` class under /hsfishing rod add-drop. 
   
 Drop chances are based off of weight. No matter what order the drops are in config, they will be ordered in descending order by weight before a drop is chosen. A drop is chosen by generating a random number up to the total weight and subtracting each item's weight until the random number is 0 or less.
 

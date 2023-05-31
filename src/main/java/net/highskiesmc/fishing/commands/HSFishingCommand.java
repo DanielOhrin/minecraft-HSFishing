@@ -19,7 +19,7 @@ import java.util.Set;
 public class HSFishingCommand implements CommandExecutor {
     private final static String USAGE_MAIN = "/hsfishing <rod>";
     private final static String USAGE_ROD = "hsfishing <rod> <get>";
-    private final static String USAGE_ROD_ADDDROP = "hsfishing rod addDrop <rod-key> <drop-key> <weight> <experience>";
+    private final static String USAGE_ROD_ADDDROP = "hsfishing rod add-drop <rod-key> <drop-key> <weight> <experience>";
     private final HSFishing MAIN;
 
     public HSFishingCommand(HSFishing main) {
@@ -55,7 +55,7 @@ public class HSFishingCommand implements CommandExecutor {
             switch (args[1].toLowerCase()) {
                 case "get":
                     return getRod(sender);
-                case "adddrop":
+                case "add-drop":
                     return addDrop(sender, args);
                 default:
                     break;
@@ -92,7 +92,7 @@ public class HSFishingCommand implements CommandExecutor {
                 /*
                     Args:
                     0 - rod
-                    1 - adddrop
+                    1 - add-drop
                     2 - rod-key
                     3 - key-name
                     4 - weight
