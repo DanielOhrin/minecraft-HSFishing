@@ -22,7 +22,7 @@ public class FishCaughtHandler implements Listener {
             + ChatColor.DARK_AQUA + "{xp} " + ChatColor.YELLOW + "xp" + ChatColor.GRAY + ')';
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onIslandFishCaught(FishCaughtEvent e) {
+    public void onFishCaught(FishCaughtEvent e) {
         HSFishingRod rod = e.getFishingRod();
         List<DropEntry> drops = e.getDroppedItems();
         Player player = rod.getPlayer();

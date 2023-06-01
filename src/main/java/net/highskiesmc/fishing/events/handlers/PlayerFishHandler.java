@@ -9,6 +9,9 @@ import net.highskiesmc.fishing.util.ItemLauncher;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Fish;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,6 +33,7 @@ public class PlayerFishHandler implements Listener {
 
     @EventHandler
     public void onFishCaught(PlayerFishEvent e) {
+        //TODO: Prevent rod from hooking invisible armor stand and dropped items
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
             Player player = e.getPlayer();
 
