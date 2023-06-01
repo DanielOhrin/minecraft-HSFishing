@@ -14,6 +14,7 @@ public class LogUtils {
     public final static String CONSOLE_ONLY = "That command can only be used by a console!";
     public final static String PLAYER_ONLY = "That command can only be used by a player!";
     public final static String SUCCESS = "Success!";
+    public static final String ERROR_VALID_ROD = "Must be holding a valid rod!";
 
     public static boolean success(CommandSender sender, String success, HSFishing main) {
         if (sender instanceof Player) {
