@@ -14,20 +14,21 @@ import java.util.Map;
 
 public class RodLevelUpHandler implements Listener {
     private final static String MESSAGE = ChatColor.YELLOW + "Level Up! {rod}";
-    private final static String MESSAGE_PERK =
+    public final static String MESSAGE_PERK =
             ChatColor.WHITE.toString() + ChatColor.BOLD + "Perk: "
                     + ChatColor.YELLOW + "{perk} " +
                     ChatColor.LIGHT_PURPLE + "+{amount}";
 
     @EventHandler
     public void onRodLevelUp(RodLevelUpEvent e) {
+
         HSFishingRod rod = e.getFishingRod();
         HashMap<Perk, Double> perkAdded = e.getPerkAdded();
         Player player = rod.getPlayer();
         int newLevel = rod.getLevel();
         String rodMessage = MESSAGE
                 .replace("{rod}", rod.getDisplayName())
-                .replace(String.valueOf(newLevel), (newLevel - 1) + " -> " + newLevel);
+                .replaceAll("(?<!§)" + newLevel, (newLevel - 1) + " -> " + newLevel);
         String perkMessage;
         if (perkAdded.isEmpty()) {
             perkMessage = MESSAGE_PERK

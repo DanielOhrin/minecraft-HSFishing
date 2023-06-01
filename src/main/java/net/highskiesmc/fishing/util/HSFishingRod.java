@@ -163,11 +163,15 @@ public class HSFishingRod {
 
         // Add rest of the lore
         lore.add("");
-        lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Experience: "
-                + ChatColor.DARK_AQUA + this.currentExperience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1));
-        if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
-            // Milestone unlocked lore
-            lore.add(ChatColor.WHITE + "^ " + ChatColor.LIGHT_PURPLE + "/upgraderod");
+        if (this.level < CustomLevelSystem.MAX_LEVEL) {
+            lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Experience: "
+                    + ChatColor.DARK_AQUA + this.currentExperience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1));
+            if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
+                // Milestone unlocked lore
+                lore.add(ChatColor.WHITE + "^ " + ChatColor.LIGHT_PURPLE + "/upgraderod");
+            }
+        } else {
+            lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "MAX LEVEL");
         }
 
         // List perks
@@ -240,22 +244,7 @@ public class HSFishingRod {
                 this.upgrade();
 
                 // Add random perk
-                HashMap<Perk, Double> perkAdded = this.getRandomPerk();
-                if (!perkAdded.isEmpty()) {
-                    Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
-                    switch (perkEntry.getKey()) {
-                        case ITEM_FIND:
-                            this.itemLuck =
-                                    Double.parseDouble(new DecimalFormat("#.##").format(this.itemLuck + perkEntry.getValue()));
-                            break;
-                        case EXPERIENCE_MULTIPLIER:
-                            this.experienceMultiplier =
-                                    Double.parseDouble(new DecimalFormat("#.##").format(this.experienceMultiplier + perkEntry.getValue()));
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                HashMap<Perk, Double> perkAdded = this.addRandomPerk();
 
                 // Update the rod configuration
                 findRodConfig(null);
@@ -264,6 +253,32 @@ public class HSFishingRod {
                 Bukkit.getPluginManager().callEvent(new RodLevelUpEvent(this, perkAdded));
             }
         }
+    }
+
+    /**
+     * Calls getRandomPerk and adds it to the rod. Returns the perk and value added
+     * OR an empty hashmap if no perk was added
+     */
+    public HashMap<Perk, Double> addRandomPerk() {
+        // Add random perk
+        HashMap<Perk, Double> perkAdded = this.getRandomPerk();
+        if (!perkAdded.isEmpty()) {
+            Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
+            switch (perkEntry.getKey()) {
+                case ITEM_FIND:
+                    this.itemLuck =
+                            Double.parseDouble(new DecimalFormat("#.##").format(this.itemLuck + perkEntry.getValue()));
+                    break;
+                case EXPERIENCE_MULTIPLIER:
+                    this.experienceMultiplier =
+                            Double.parseDouble(new DecimalFormat("#.##").format(this.experienceMultiplier + perkEntry.getValue()));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return perkAdded;
     }
 
     /**
@@ -291,9 +306,10 @@ public class HSFishingRod {
     }
 
     public void setLevel(int level) {
-        if (level <= CustomLevelSystem.MAX_LEVEL) {
+        if (level <= CustomLevelSystem.MAX_LEVEL && level >= 1) {
             this.level = level;
             this.currentExperience = 0;
+            findRodConfig(null);
         }
     }
 

@@ -1,9 +1,12 @@
 package net.highskiesmc.fishing.commands;
 
 import net.highskiesmc.fishing.HSFishing;
+import net.highskiesmc.fishing.events.handlers.RodLevelUpHandler;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.ItemSerializer;
 import net.highskiesmc.fishing.util.LogUtils;
+import net.highskiesmc.fishing.util.enums.Perk;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,6 +17,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class HSFishingCommand implements CommandExecutor {
@@ -57,6 +62,10 @@ public class HSFishingCommand implements CommandExecutor {
                     return getRod(sender);
                 case "add-drop":
                     return addDrop(sender, args);
+                case "set":
+                    return set(sender, args);
+                case "add-perk":
+                    return addPerk(sender, args);
                 default:
                     break;
             }
@@ -138,6 +147,112 @@ public class HSFishingCommand implements CommandExecutor {
                     }
                 } else {
                     return LogUtils.error(sender, USAGE_ROD_ADDDROP, this.MAIN);
+                }
+            } else {
+                return LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
+            }
+        } else {
+            return LogUtils.error(sender, LogUtils.ERROR_PERMISSION, this.MAIN);
+        }
+    }
+
+    public boolean set(CommandSender sender, String[] args) {
+        if (sender.hasPermission("hsfishing.rod.set")) {
+            if (sender instanceof Player) {
+                // Check that they are holding a valid rod
+                Player player = (Player) sender;
+                ItemStack heldItem = player.getInventory().getItemInMainHand();
+                HSFishingRod rod = null;
+                try {
+                    rod = new HSFishingRod(this.MAIN, heldItem, player);
+                } catch (IOException | IllegalArgumentException ignored) {
+                }
+
+                if (rod != null) {
+            /*
+                0 - rod
+                1 - set
+                2 - level/perk
+                3 - value
+            */
+                    if (args.length == 4) {
+                        Double value = null;
+                        try {
+                            value = Double.parseDouble(args[3]);
+                        } catch (NumberFormatException ignored) {
+                            return LogUtils.error(sender, LogUtils.ERROR_NUMBERS, this.MAIN);
+                        }
+
+                        if (args[2].equalsIgnoreCase("level")) {
+                            rod.setLevel(value.intValue());
+                        } else {
+                            Perk perk = null;
+                            try {
+                                perk = Perk.valueOf(args[2].toUpperCase());
+                            } catch (IllegalArgumentException ignored) {
+                            }
+
+                            switch (perk) {
+                                case ITEM_FIND:
+                                    rod.setItemLuck(value);
+                                    break;
+                                case EXPERIENCE_MULTIPLIER:
+                                    rod.setExperienceMultiplier(value);
+                                    break;
+                                default:
+                                    return LogUtils.error(sender, "/hsfishing rod set <level/perk> <value>",
+                                            this.MAIN);
+                            }
+                        }
+
+                        player.getInventory().setItemInMainHand(rod.getRod());
+                        return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
+                    } else {
+                        return LogUtils.error(sender, "/hsfishing rod set <level/perk> <value>", this.MAIN);
+                    }
+                } else {
+                    return LogUtils.error(sender, LogUtils.ERROR_VALID_ROD, this.MAIN);
+                }
+            } else {
+                return LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
+            }
+        } else {
+            return LogUtils.error(sender, LogUtils.ERROR_PERMISSION, this.MAIN);
+        }
+    }
+
+    private boolean addPerk(CommandSender sender, String[] args) {
+        if (sender.hasPermission("hsfishing.rod.add-perk")) {
+            if (sender instanceof Player) {
+                // Check that they are holding a valid rod
+                Player player = (Player) sender;
+                ItemStack heldItem = player.getInventory().getItemInMainHand();
+                HSFishingRod rod = null;
+                try {
+                    rod = new HSFishingRod(this.MAIN, heldItem, player);
+                } catch (IOException | IllegalArgumentException ignored) {
+                }
+
+                if (rod != null) {
+                    HashMap<Perk, Double> perkAdded = rod.addRandomPerk();
+
+                    String perkMessage;
+                    if (perkAdded.isEmpty()) {
+                        perkMessage = RodLevelUpHandler.MESSAGE_PERK
+                                .replace("{perk}", ChatColor.RED + "None :(")
+                                .replace("+{amount}", "");
+                    } else {
+                        Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
+                        perkMessage = RodLevelUpHandler.MESSAGE_PERK
+                                .replace("{perk}", perkEntry.getKey().getValue())
+                                .replace("{amount}", String.valueOf(perkEntry.getValue()));
+                    }
+
+                    player.getInventory().setItemInMainHand(rod.getRod());
+                    player.sendMessage(perkMessage);
+                    return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
+                } else {
+                    return LogUtils.error(sender, LogUtils.ERROR_VALID_ROD, this.MAIN);
                 }
             } else {
                 return LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
