@@ -6,17 +6,25 @@ import org.bukkit.inventory.ItemStack;
 public class DropEntry {
     private final ItemStack ITEMSTACK;
     private final double WEIGHT;
-    private final double EXPERIENCE;
+    private double experience;
     private Rarity rarity;
 
     public DropEntry(ItemStack item, double weight, double experience) {
         this.ITEMSTACK = item;
         this.WEIGHT = weight;
-        this.EXPERIENCE = experience;
+        this.experience = experience;
     }
 
     public ItemStack getItemStack() {
         return this.ITEMSTACK;
+    }
+
+    public int getAmount() {
+        return this.ITEMSTACK.getAmount();
+    }
+
+    public void setAmount(int newAmount) {
+        this.ITEMSTACK.setAmount(newAmount);
     }
 
     public double getWeight() {
@@ -24,15 +32,19 @@ public class DropEntry {
     }
 
     public double getExperience() {
-        return this.EXPERIENCE;
+        return this.experience;
     }
 
-    public void setRarity(Rarity pRarity) {
-        this.rarity = pRarity;
+    public void setExperience(double newExperience) {
+        this.experience = newExperience;
     }
 
     public Rarity getRarity() {
         return this.rarity;
+    }
+
+    public void setRarity(Rarity pRarity) {
+        this.rarity = pRarity;
     }
 }
 
