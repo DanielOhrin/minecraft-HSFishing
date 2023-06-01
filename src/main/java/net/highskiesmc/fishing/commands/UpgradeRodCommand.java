@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class UpgradeRodCommand implements CommandExecutor {
-    private static final String ERROR_VALID_ROD = "Must be holding a valid rod!";
     private static final String ERROR_ROD_MAX_MILESTONE = "Held rod has already reached the max milestone!";
     private final HSFishing MAIN;
     private final HashMap<UUID, UpgradeRodGUI> OPEN_UPGRADEROD_GUIS;
@@ -102,7 +101,7 @@ public class UpgradeRodCommand implements CommandExecutor {
                 // Open the inventory
                 player.openInventory(inv);
             } else {
-                LogUtils.error(sender, ERROR_VALID_ROD, this.MAIN);
+                LogUtils.error(sender, LogUtils.ERROR_VALID_ROD, this.MAIN);
             }
         } else {
             LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);

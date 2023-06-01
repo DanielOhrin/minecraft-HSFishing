@@ -1,12 +1,15 @@
 package net.highskiesmc.fishing.commands;
 
 import net.highskiesmc.fishing.HSFishing;
+import net.highskiesmc.fishing.util.enums.Perk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HSFishingTabCompleter implements TabCompleter {
     private final HSFishing MAIN;
@@ -33,6 +36,8 @@ public class HSFishingTabCompleter implements TabCompleter {
                     if (sender.hasPermission("hsfishing.tab.rod")) {
                         result.add("get");
                         result.add("add-drop");
+                        result.add("add-perk");
+                        result.add("set");
                     }
                 }
                 break;
@@ -42,9 +47,18 @@ public class HSFishingTabCompleter implements TabCompleter {
                         if (sender.hasPermission("hsfishing.rod.add-drop")) {
                             result.addAll(this.MAIN.getConfig().getKeys(false));
                         }
+                    } else if (args[1].equalsIgnoreCase("set")) {
+                        result.add("level");
+                        result.addAll(Arrays.stream(Perk.values()).map(Enum::name).collect(Collectors.toList()));
                     }
                 }
                 break;
+            case 4:
+                if (args[0].equalsIgnoreCase("rod")) {
+                    if (args[1].equalsIgnoreCase("set")) {
+                        result.add("<value>");
+                    }
+                }
             default:
                 break;
         }
