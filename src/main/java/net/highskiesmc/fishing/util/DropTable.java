@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class DropTable {
     private final List<DropEntry> DROP_ENTRIES;
@@ -58,17 +57,19 @@ public class DropTable {
             }
         }
 
-        return null; // No item selected
+        DropEntry rarestEntry = this.DROP_ENTRIES.get(this.DROP_ENTRIES.size() - 1);
+        rarestEntry.setRarity(Rarity.LEGENDARY);
+        return rarestEntry; // No item selected = default to rarest
     }
 
     private Rarity getRarity(double dropChance) {
-        if (dropChance > 0.40D) {
+        if (dropChance >= 0.40D) {
             return Rarity.COMMON;
-        } else if (dropChance > 0.15D) {
+        } else if (dropChance >= 0.15D) {
             return Rarity.UNCOMMON;
-        } else if (dropChance > 0.05D) {
+        } else if (dropChance >= 0.05D) {
             return Rarity.RARE;
-        } else if (dropChance > 0.01D) {
+        } else if (dropChance >= 0.01D) {
             return Rarity.EPIC;
         } else {
             return Rarity.LEGENDARY;

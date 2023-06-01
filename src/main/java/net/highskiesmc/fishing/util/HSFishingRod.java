@@ -179,6 +179,9 @@ public class HSFishingRod {
             lore.add(ChatColor.YELLOW + "Item Find: " + ChatColor.LIGHT_PURPLE + "+" + this.itemLuck);
         }
 
+        lore.add("");
+        lore.add(ChatColor.GOLD + "Total Drops: " + ChatColor.AQUA + this.totalItemsCaught);
+
         return lore;
     }
 
