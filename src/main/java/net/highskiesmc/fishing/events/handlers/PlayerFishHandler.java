@@ -8,6 +8,7 @@ import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.ItemLauncher;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Fish;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -33,7 +35,26 @@ public class PlayerFishHandler implements Listener {
 
     @EventHandler
     public void onFishCaught(PlayerFishEvent e) {
-        //TODO: Prevent rod from hooking invisible armor stand and dropped items
+        // Prevent rod from hooking invisible armor stand and dropped items
+        if (e.getState().equals(PlayerFishEvent.State.FISHING)) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (e.getHook().isDead() || e.getHook().getLocation().getBlock().getType().equals(Material.WATER)) {
+                        cancel();
+                    }
+                    if (e.getHook().getHookedEntity() instanceof ArmorStand) {
+                        if (((ArmorStand) e.getHook().getHookedEntity()).isInvisible()) {
+                            e.getHook().setHookedEntity(null);
+                        }
+                    } else if (e.getHook().getHookedEntity() instanceof Item) {
+                        e.getHook().setHookedEntity(null);
+                    }
+                }
+            }.runTaskTimer(this.MAIN, 0, 1);
+        }
+
+
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
             Player player = e.getPlayer();
 
