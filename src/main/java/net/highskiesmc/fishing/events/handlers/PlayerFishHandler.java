@@ -15,6 +15,7 @@ import org.bukkit.entity.Fish;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -33,7 +34,7 @@ public class PlayerFishHandler implements Listener {
         this.MAIN = main;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onFishCaught(PlayerFishEvent e) {
         // Prevent rod from hooking invisible armor stand and dropped items
         if (e.getState().equals(PlayerFishEvent.State.FISHING)) {
