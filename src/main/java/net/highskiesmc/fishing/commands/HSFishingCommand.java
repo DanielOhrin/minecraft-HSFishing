@@ -2,6 +2,7 @@ package net.highskiesmc.fishing.commands;
 
 import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.events.handlers.RodLevelUpHandler;
+import net.highskiesmc.fishing.util.CustomLevelSystem;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.ItemSerializer;
 import net.highskiesmc.fishing.util.LogUtils;
@@ -184,7 +185,7 @@ public class HSFishingCommand implements CommandExecutor {
                         }
 
                         if (args[2].equalsIgnoreCase("level")) {
-                            rod.setLevel(value.intValue());
+                            rod.setLevel(Math.min(CustomLevelSystem.MAX_LEVEL, Math.max(1, value.intValue())));
                         } else {
                             Perk perk = null;
                             try {
