@@ -48,10 +48,10 @@ public class UpgradeRodCommand implements CommandExecutor {
                 try {
                     newRod.upgradeMilestone(false);
                     rodIsReady = true;
-                } catch (OperationNotSupportedException ignored) {
+                } catch (IllegalStateException ignored) {
                     try {
                         newRod.upgradeMilestone(true);
-                    } catch (OperationNotSupportedException ignore) {}
+                    } catch (IllegalStateException ignore) {}
                 }
 
                 // Check if the rod is max level
