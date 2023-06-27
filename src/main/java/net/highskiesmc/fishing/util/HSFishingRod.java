@@ -222,14 +222,25 @@ public class HSFishingRod {
      * @param experience Amount of experience to add
      */
     public void addExperience(double experience) {
+        this.totalExperience += experience;
+
         // Check if they were notified of the potential milestone unlocked
-        boolean wasNotified = this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1);
+        boolean wasNotified = true;
+        if (this.level != CustomLevelSystem.MAX_LEVEL) {
+            wasNotified = this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1);
+        }
 
-        this.currentExperience = Math.min(CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1),
-                this.currentExperience + experience);
-
+        try {
+            this.currentExperience = Math.min(CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1),
+                    this.currentExperience + experience);
+        } catch (IllegalArgumentException ignored) {
+            this.currentExperience = 0;
+        }
         // Try to level up the rod
-        int nextLevel = CustomLevelSystem.getNextLevel(this.level, this.currentExperience);
+        int nextLevel = CustomLevelSystem.MAX_LEVEL;
+        if (this.level != CustomLevelSystem.MAX_LEVEL) {
+            nextLevel = CustomLevelSystem.getNextLevel(this.level, this.currentExperience);
+        }
 
         if (nextLevel > this.level) {
             // Check if new level was a milestone upgrade
@@ -359,18 +370,22 @@ public class HSFishingRod {
         return this.PLAYER;
     }
 
+    public int getCurrentMilestone() {
+        return this.currentMilestone;
+    }
+
     /**
      * Tries to upgrade the rod's milestone
      *
-     * @throws OperationNotSupportedException When the rod is not ready to upgrade
+     * @throws IllegalStateException When the rod is not ready to upgrade
      */
-    public void upgradeMilestone(boolean ignoreLevel) throws OperationNotSupportedException {
+    public void upgradeMilestone(boolean ignoreLevel) throws IllegalStateException {
         if (!ignoreLevel) {
             if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
                 this.upgrade();
                 this.findRodConfig(null);
             } else {
-                throw new OperationNotSupportedException("Rod is not ready to upgrade its milestone.");
+                throw new IllegalStateException("Rod is not ready to upgrade its milestone.");
             }
         } else {
             this.currentExperience = 0;
