@@ -7,6 +7,7 @@ import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.ItemSerializer;
 import net.highskiesmc.fishing.util.LogUtils;
 import net.highskiesmc.fishing.util.enums.Perk;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -23,8 +24,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class HSFishingCommand implements CommandExecutor {
+    private final static String USAGE_GIVE = "/hsfishing rod give <player> [level]";
     private final static String USAGE_MAIN = "/hsfishing <rod>";
-    private final static String USAGE_ROD = "hsfishing <rod> <get>";
+    private final static String USAGE_ROD = "hsfishing rod <get/set/add-drop/add-perk>";
     private final static String USAGE_ROD_ADDDROP = "hsfishing rod add-drop <rod-key> <drop-key> <weight> <experience>";
     private final HSFishing MAIN;
 
@@ -59,8 +61,8 @@ public class HSFishingCommand implements CommandExecutor {
     private boolean rod(CommandSender sender, String[] args) {
         if (args.length > 1) {
             switch (args[1].toLowerCase()) {
-                case "get":
-                    return getRod(sender);
+                case "give":
+                    return giveRod(sender, args);
                 case "add-drop":
                     return addDrop(sender, args);
                 case "set":
@@ -75,18 +77,35 @@ public class HSFishingCommand implements CommandExecutor {
         return LogUtils.usage(sender, USAGE_ROD, this.MAIN);
     }
 
-    private boolean getRod(CommandSender sender) {
-        if (sender.hasPermission("hsfishing.rod.get")) {
-            if (sender instanceof Player) {
-                try {
-                    ((Player) sender).getInventory().addItem(new HSFishingRod(this.MAIN, (Player) sender).getRod());
-                    return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
-                } catch (IOException ex) {
-                    this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
-                    return LogUtils.error(sender, LogUtils.ERROR_UNKNOWN, this.MAIN);
+    private boolean giveRod(CommandSender sender, String[] args) {
+        if (sender.hasPermission("hsfishing.rod.give")) {
+
+            if (args.length >= 3) {
+                Player player = Bukkit.getPlayerExact(args[2]);
+
+                if (player != null) {
+                    int level;
+
+                    try {
+                        level = Integer.parseInt(args[3]);
+                    } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
+                        level = 1;
+                    }
+
+                    try {
+                        HSFishingRod rod = new HSFishingRod(this.MAIN, player);
+                        rod.setLevel(level);
+                        player.getInventory().addItem(rod.getRod());
+                        return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
+                    } catch (IOException ex) {
+                        this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
+                        return LogUtils.error(sender, LogUtils.ERROR_UNKNOWN, this.MAIN);
+                    }
+                } else {
+                    return LogUtils.error(sender, "Player not found.", this.MAIN);
                 }
             } else {
-                return LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
+                return LogUtils.error(sender, USAGE_GIVE, this.MAIN);
             }
         } else {
             return LogUtils.error(sender, LogUtils.ERROR_PERMISSION, this.MAIN);

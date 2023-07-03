@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -117,6 +118,8 @@ public class HSFishingRod {
     public ItemStack getRod() {
         ItemStack rod = new ItemStack(Material.FISHING_ROD, 1);
         ItemMeta meta = oldMeta == null ? rod.getItemMeta() : oldMeta;
+        meta.setUnbreakable(true);
+        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
 
         pdc.set(this.LEVEL_KEY, PersistentDataType.INTEGER, this.level);

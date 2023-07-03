@@ -2,9 +2,11 @@ package net.highskiesmc.fishing.commands;
 
 import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.util.enums.Perk;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +36,7 @@ public class HSFishingTabCompleter implements TabCompleter {
             case 2:
                 if (args[0].equalsIgnoreCase("rod")) {
                     if (sender.hasPermission("hsfishing.tab.rod")) {
-                        result.add("get");
+                        result.add("give");
                         result.add("add-drop");
                         result.add("add-perk");
                         result.add("set");
@@ -50,6 +52,8 @@ public class HSFishingTabCompleter implements TabCompleter {
                     } else if (args[1].equalsIgnoreCase("set")) {
                         result.add("level");
                         result.addAll(Arrays.stream(Perk.values()).map(Enum::name).collect(Collectors.toList()));
+                    } else if (args[1].equalsIgnoreCase("give")) {
+                        result.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(x -> x.toLowerCase().contains(args[2].toLowerCase())).collect(Collectors.toList()));
                     }
                 }
                 break;
@@ -57,6 +61,8 @@ public class HSFishingTabCompleter implements TabCompleter {
                 if (args[0].equalsIgnoreCase("rod")) {
                     if (args[1].equalsIgnoreCase("set")) {
                         result.add("<value>");
+                    } else if (args[1].equalsIgnoreCase("give")) {
+                        result.add("<level>");
                     }
                 }
             default:

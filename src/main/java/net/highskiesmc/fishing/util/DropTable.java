@@ -63,7 +63,7 @@ public class DropTable {
     }
 
     private Rarity getRarity(double dropChance) {
-        if (dropChance >= 0.10D) {
+        if (dropChance >= 0.05D) {
             return Rarity.COMMON;
         } else if (dropChance >= 0.025D) {
             return Rarity.UNCOMMON;
