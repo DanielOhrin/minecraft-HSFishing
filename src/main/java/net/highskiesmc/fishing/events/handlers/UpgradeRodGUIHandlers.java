@@ -1,6 +1,8 @@
 package net.highskiesmc.fishing.events.handlers;
 
+import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.events.events.RodUpgradedEvent;
+import net.highskiesmc.fishing.inventories.RodUpgradesGUI;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.UpgradeRodGUI;
 import org.bukkit.Bukkit;
@@ -10,8 +12,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.Inventory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -39,7 +43,6 @@ public class UpgradeRodGUIHandlers implements Listener {
         if (GUI != null) {
             e.setCancelled(true);
             Player player = (Player) e.getWhoClicked();
-            Inventory inv = GUI.getInventory();
             HSFishingRod oldRod = GUI.getOldRod();
             HSFishingRod newRod = GUI.getNewRod();
             boolean rodIsReady = GUI.isReady();
@@ -49,23 +52,35 @@ public class UpgradeRodGUIHandlers implements Listener {
                 String oldDisplayName = oldRod.getDisplayName().split("\\(")[0].trim();
 
                 switch (e.getRawSlot()) {
-                    case 12:
-                    case 13:
-                    case 14:
+                    case 12, 13, 14 -> {
                         RodUpgradedEvent event = new RodUpgradedEvent(oldDisplayName, newRod);
                         Bukkit.getPluginManager().callEvent(event);
-
                         if (!event.isCancelled()) {
                             player.getInventory().setItemInMainHand(newRod.getRod());
                         }
                         e.getView().close();
                         this.OPEN_UPGRADEROD_GUIS.remove(player.getUniqueId());
-                        break;
-                    default:
-                        e.setCancelled(true);
-                        break;
+                    }
+                    default -> e.setCancelled(true);
                 }
             }
         }
+    }
+
+
+    // Rod Upgrade Handlers (Fishing Speed, Xp Gain, etc.)
+    @EventHandler
+    public void onSwapHSFishingRodToOffhand(PlayerSwapHandItemsEvent e) {
+        HSFishingRod rod;
+        Player player = e.getPlayer();
+
+        try {
+            rod = new HSFishingRod(HSFishing.getPlugin(HSFishing.class), e.getOffHandItem(), player);
+        } catch (IllegalArgumentException | IOException ignore) {
+            return;
+        }
+
+        RodUpgradesGUI gui = new RodUpgradesGUI(rod);
+        player.openInventory(gui.getInventory());
     }
 }

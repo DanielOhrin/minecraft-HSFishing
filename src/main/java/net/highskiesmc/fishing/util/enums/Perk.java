@@ -1,32 +1,67 @@
 package net.highskiesmc.fishing.util.enums;
 
+import org.checkerframework.checker.units.qual.Length;
+import org.checkerframework.common.value.qual.ArrayLen;
+import org.checkerframework.common.value.qual.IntRange;
+
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Random;
 
 public enum Perk {
-    ITEM_FIND("Item Find", 0.25, 1.0),
-    EXPERIENCE_MULTIPLIER("Xp Gain", 0.05, 0.2),
-    FISHING_SPEED("Fishing Speed", 25D, 25D);
+    XP_GAIN("Xp Gain", new LinkedList<>(Arrays.asList(1.00, 1.25, 1.50, 2.00D, 2.50))),
+    FISHING_SPEED("Fishing Speed", new LinkedList<>(Arrays.asList(10.00, 20.00, 30.00, 40.00, 50.00))),
+    ITEM_FIND("Item Find", new LinkedList<>(Arrays.asList(25.00, 50.00, 125.00, 175.00, 250.00))),
+    DOUBLE_DROPS("Double Drops", new LinkedList<>(Arrays.asList(2.50, 5.00, 7.50, 10.00, 15.00))),
+    DOUBLE_XP("Double Xp", new LinkedList<>(Arrays.asList(1D, 2.50, 5.00, 7.50, 10.00, 15.00)));
     private final String VALUE;
-    private final Double MIN_INCREMENT;
-    private final Double MAX_INCREMENT;
+    // Length = amount of skills...Should also edit skill point gain to account for new perks.
+    public static final int MAX_PERK_LEVEL = 5;
+    private final @ArrayLen(MAX_PERK_LEVEL) LinkedList<Double> LEVELS; // Double = perk amount. Index + 1 = level
 
-    Perk(String value, Double minIncrement, Double maxIncrement) {
+    Perk(String value, LinkedList<Double> levels) {
         this.VALUE = value;
-        this.MIN_INCREMENT = minIncrement;
-        this.MAX_INCREMENT = maxIncrement;
+        this.LEVELS = levels;
     }
 
-    public double getMaxIncrement() {
-        return MAX_INCREMENT;
+    /**
+     * @param level Level of the perk
+     * @return Amount of the bonus that should be provided for that level
+     */
+    public double getAmount(@IntRange(from = 1, to = MAX_PERK_LEVEL) int level) {
+        return this.LEVELS.get(level - 1);
     }
 
-    public double getMinIncrement() {
-        return MIN_INCREMENT;
+    public Integer getLevel(Double amount) {
+        return this.LEVELS.indexOf(amount);
     }
 
-    public double getRandomIncrement() {
-        return Double.parseDouble(new DecimalFormat("#.##").format(this.MIN_INCREMENT + (new Random().nextDouble() * (this.MAX_INCREMENT - this.MIN_INCREMENT))));
+    /**
+     * @return Amount of skill points required to purchase the next level, or -1 if at max level
+     */
+    public static int getNextLevelCost(int currentLevel) {
+        switch (currentLevel) {
+            case 0 -> {
+                return 1;
+            }
+            case 1 -> {
+                return 2;
+            }
+            case 2 -> {
+                return 4;
+            }
+            case 3 -> {
+                return 8;
+            }
+            case 4 -> {
+                return 10;
+            }
+            default -> {
+                return -1;
+            }
+        }
     }
 
     public String getValue() {

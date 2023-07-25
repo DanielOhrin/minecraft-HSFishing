@@ -1,8 +1,8 @@
 name: HSFishing
 version: '${project.version}'
 main: net.highskiesmc.fishing.HSFishing
-api-version: 1.19
-authors: [Daniel Ohrin]
+api-version: 1.13
+authors: [ Daniel Ohrin ]
 commands:
   hsfishing:
     aliases:

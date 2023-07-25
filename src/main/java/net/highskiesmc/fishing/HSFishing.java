@@ -23,6 +23,7 @@ public final class HSFishing extends JavaPlugin {
         getCommand("hsfishing").setTabCompleter(new HSFishingTabCompleter(this));
         getCommand("upgraderod").setExecutor(new UpgradeRodCommand(this, this.OPEN_UPGRADEROD_GUIS));
 
+        Bukkit.getPluginManager().registerEvents(new InventoryHandler(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerFishHandler(this), this);
         Bukkit.getPluginManager().registerEvents(new FishCaughtHandler(), this);
         Bukkit.getPluginManager().registerEvents(new RodLevelUpHandler(), this);

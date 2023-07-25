@@ -14,36 +14,25 @@ import java.util.Map;
 
 public class RodLevelUpHandler implements Listener {
     private final static String MESSAGE = ChatColor.YELLOW + "Level Up! {rod}";
-    public final static String MESSAGE_PERK =
-            ChatColor.WHITE.toString() + ChatColor.BOLD + "Perk: "
-                    + ChatColor.YELLOW + "{perk} " +
-                    ChatColor.LIGHT_PURPLE + "+{amount}";
+    public final static String MESSAGE_SKILL_POINTS = ChatColor.LIGHT_PURPLE + "+{amount} " + ChatColor.YELLOW +
+            "Skill Points";
 
     @EventHandler
     public void onRodLevelUp(RodLevelUpEvent e) {
-
         HSFishingRod rod = e.getFishingRod();
-        HashMap<Perk, Double> perkAdded = e.getPerkAdded();
         Player player = rod.getPlayer();
         int newLevel = rod.getLevel();
+
         String rodMessage = MESSAGE
                 .replace("{rod}", rod.getDisplayName())
                 .replaceAll("(?<!§)" + newLevel, (newLevel - 1) + " -> " + newLevel);
-        String perkMessage;
-        if (perkAdded.isEmpty()) {
-            perkMessage = MESSAGE_PERK
-                    .replace("{perk}", ChatColor.RED + "None :(")
-                    .replace("+{amount}", "");
-        } else {
-            Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
-            perkMessage = MESSAGE_PERK
-                    .replace("{perk}", perkEntry.getKey().getValue())
-                    .replace("{amount}", String.valueOf(perkEntry.getValue()));
-        }
+
 
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
         player.sendMessage(rodMessage);
-        player.sendMessage(perkMessage);
 
+        int skillPointsGained = e.getSkillPoints();
+        if (skillPointsGained > 0)
+            player.sendMessage(MESSAGE_SKILL_POINTS.replace("{amount}", String.valueOf(skillPointsGained)));
     }
 }
