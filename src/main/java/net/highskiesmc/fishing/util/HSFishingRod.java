@@ -35,6 +35,7 @@ public class HSFishingRod {
     private final NamespacedKey ITEM_LUCK_KEY;
     private final NamespacedKey EXPERIENCE_MULTIPLIER_KEY;
     private final NamespacedKey TOTAL_ITEMS_CAUGHT_KEY;
+    private final NamespacedKey FISHING_SPEED_KEY;
     private final HSFishing MAIN;
     private final Player PLAYER;
     private ItemMeta oldMeta = null;
@@ -46,6 +47,7 @@ public class HSFishingRod {
     private double experienceMultiplier = 1.0D;
     private final DropTable DROP_TABLE;
     private int currentMilestone;
+    private double fishingSpeed = 150;
 
     public HSFishingRod(HSFishing main, ItemStack existingRod, Player player) throws IOException,
             IllegalArgumentException {
@@ -56,6 +58,7 @@ public class HSFishingRod {
         this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
         this.EXPERIENCE_MULTIPLIER_KEY = new NamespacedKey(this.MAIN, "rod-experience-multiplier");
         this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
+        this.FISHING_SPEED_KEY = new NamespacedKey(this.MAIN, "rod-fishing-speed");
 
         // Parse existing Rod
         this.parseRod(existingRod);
@@ -75,6 +78,7 @@ public class HSFishingRod {
         this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
         this.EXPERIENCE_MULTIPLIER_KEY = new NamespacedKey(this.MAIN, "rod-experience-multiplier");
         this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
+        this.FISHING_SPEED_KEY = new NamespacedKey(this.MAIN, "rod-fishing-speed");
 
         // Construct new rod
         this.findRodConfig(null);
@@ -103,6 +107,8 @@ public class HSFishingRod {
                 this.itemLuck = pdc.get(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE);
                 this.experienceMultiplier = pdc.get(this.EXPERIENCE_MULTIPLIER_KEY, PersistentDataType.DOUBLE);
                 this.totalItemsCaught = pdc.get(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER);
+                this.fishingSpeed = Math.max(pdc.getOrDefault(this.FISHING_SPEED_KEY, PersistentDataType.DOUBLE,
+                        150D), 150);
             } else {
                 throw new IllegalArgumentException("Item received was not a valid HSFishingRod");
             }
@@ -128,6 +134,7 @@ public class HSFishingRod {
         pdc.set(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE, this.itemLuck);
         pdc.set(this.EXPERIENCE_MULTIPLIER_KEY, PersistentDataType.DOUBLE, this.experienceMultiplier);
         pdc.set(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER, this.totalItemsCaught);
+        pdc.set(this.FISHING_SPEED_KEY, PersistentDataType.DOUBLE, this.fishingSpeed);
 
         if (this.ROD_CONFIG == null) {
             throw new NullPointerException("Could not find matching configuration section for the rod");
@@ -168,7 +175,8 @@ public class HSFishingRod {
         lore.add("");
         if (this.level < CustomLevelSystem.MAX_LEVEL) {
             lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Experience: "
-                    + ChatColor.DARK_AQUA + this.currentExperience + ChatColor.WHITE + "/" + ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1));
+                    + ChatColor.DARK_AQUA + (new DecimalFormat("#.##")).format(this.currentExperience) + ChatColor.WHITE + "/" +
+                    ChatColor.RED + CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1));
             if (this.currentExperience == CustomLevelSystem.getExperienceRequiredForLevel(this.level + 1)) {
                 // Milestone unlocked lore
                 lore.add(ChatColor.WHITE + "^ " + ChatColor.LIGHT_PURPLE + "/upgraderod");
@@ -181,9 +189,14 @@ public class HSFishingRod {
         lore.add("");
         lore.add(ChatColor.WHITE.toString() + ChatColor.BOLD + "Perks");
 
-        lore.add(ChatColor.YELLOW + "Xp Gain: " + ChatColor.AQUA + this.experienceMultiplier + 'x');
+        lore.add(ChatColor.YELLOW + "Xp Gain: " + ChatColor.AQUA + (new DecimalFormat("#.##")).format(this.experienceMultiplier) + 'x');
+
+        if (this.fishingSpeed > 0) {
+            lore.add(ChatColor.YELLOW + "Fishing Speed: " + ChatColor.AQUA + "+" + new DecimalFormat("#.##").format(this.fishingSpeed));
+        }
+
         if (this.itemLuck > 0) {
-            lore.add(ChatColor.YELLOW + "Item Find: " + ChatColor.LIGHT_PURPLE + "+" + this.itemLuck);
+            lore.add(ChatColor.YELLOW + "Item Find: " + ChatColor.LIGHT_PURPLE + "+" + new DecimalFormat("#.##").format(this.itemLuck));
         }
 
         lore.add("");
@@ -287,6 +300,9 @@ public class HSFishingRod {
                     this.experienceMultiplier =
                             Double.parseDouble(new DecimalFormat("#.##").format(this.experienceMultiplier + perkEntry.getValue()));
                     break;
+                case FISHING_SPEED:
+                    this.fishingSpeed =
+                            Double.parseDouble(new DecimalFormat("#.##").format(this.fishingSpeed + perkEntry.getValue()));
                 default:
                     break;
             }
@@ -401,5 +417,13 @@ public class HSFishingRod {
                 this.level = -1;
             }
         }
+    }
+
+    public double getFishingSpeed() {
+        return this.fishingSpeed;
+    }
+
+    public void setFishingSpeed(double speed) {
+        this.fishingSpeed = speed;
     }
 }

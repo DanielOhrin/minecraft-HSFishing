@@ -26,7 +26,7 @@ import java.util.Set;
 public class HSFishingCommand implements CommandExecutor {
     private final static String USAGE_GIVE = "/hsfishing rod give <player> [level]";
     private final static String USAGE_MAIN = "/hsfishing <rod>";
-    private final static String USAGE_ROD = "hsfishing rod <get/set/add-drop/add-perk>";
+    private final static String USAGE_ROD = "hsfishing rod <give/set/add-drop/add-perk>";
     private final static String USAGE_ROD_ADDDROP = "hsfishing rod add-drop <rod-key> <drop-key> <weight> <experience>";
     private final HSFishing MAIN;
 
@@ -218,6 +218,9 @@ public class HSFishingCommand implements CommandExecutor {
                                     break;
                                 case EXPERIENCE_MULTIPLIER:
                                     rod.setExperienceMultiplier(value);
+                                    break;
+                                case FISHING_SPEED:
+                                    rod.setFishingSpeed(value);
                                     break;
                                 default:
                                     return LogUtils.error(sender, "/hsfishing rod set <level/perk> <value>",

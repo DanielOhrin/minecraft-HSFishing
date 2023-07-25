@@ -5,7 +5,8 @@ import java.util.Random;
 
 public enum Perk {
     ITEM_FIND("Item Find", 0.25, 1.0),
-    EXPERIENCE_MULTIPLIER("Xp Gain", 0.05, 0.2);
+    EXPERIENCE_MULTIPLIER("Xp Gain", 0.05, 0.2),
+    FISHING_SPEED("Fishing Speed", 25D, 25D);
     private final String VALUE;
     private final Double MIN_INCREMENT;
     private final Double MAX_INCREMENT;

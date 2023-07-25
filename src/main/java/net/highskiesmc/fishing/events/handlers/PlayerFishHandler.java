@@ -10,10 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Fish;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -36,8 +33,40 @@ public class PlayerFishHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onFishCaught(PlayerFishEvent e) {
-        // Prevent rod from hooking invisible armor stand and dropped items
+        Player player = e.getPlayer();
+
+        //  Check if they are using a valid fishing rod
+        HSFishingRod hsFishingRod;
+        try {
+            hsFishingRod = new HSFishingRod(this.MAIN,
+                    player.getInventory().getItemInMainHand(), player);
+        } catch (IllegalArgumentException ex) {
+            // Provide player feedback that they must use a valid fishing rod
+            e.setCancelled(true);
+            player.sendMessage(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "[!] " +
+                    ChatColor.RED + "You cannot fish with this!");
+            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
+            return;
+        } catch (IOException ex) {
+            this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
+            e.setCancelled(true);
+            return;
+        }
+
         if (e.getState().equals(PlayerFishEvent.State.FISHING)) {
+            double fishingSpeed = hsFishingRod.getFishingSpeed();
+            FishHook hook = e.getHook();
+
+            // Update fishing speed
+            // ^ Affects time for a fish to APPEAR -- not to bite
+            if (fishingSpeed > 500) {
+                hook.setMaxWaitTime(100);
+                hook.setMinWaitTime(Math.min(0, Double.valueOf(fishingSpeed - 500).intValue()));
+            } else {
+                hook.setMaxWaitTime(Double.valueOf(Math.max(100D, 600 - fishingSpeed)).intValue());
+            }
+
+            // Prevent rod from hooking invisible armor stand and dropped items
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -55,33 +84,12 @@ public class PlayerFishHandler implements Listener {
             }.runTaskTimer(this.MAIN, 0, 1);
         }
 
-
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
-            Player player = e.getPlayer();
-
             // Clear existing drops
             if (e.getCaught() != null) {
                 e.getCaught().remove();
             }
             e.setExpToDrop(0);
-
-            //  Check if they are using a valid fishing rod
-            HSFishingRod hsFishingRod;
-            try {
-                hsFishingRod = new HSFishingRod(this.MAIN,
-                        player.getInventory().getItemInMainHand(), player);
-            } catch (IllegalArgumentException ex) {
-                // Provide player feedback that they must use a valid fishing rod
-                e.setCancelled(true);
-                player.sendMessage(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "[!] " +
-                        ChatColor.RED + "You cannot fish with this!");
-                player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
-                return;
-            } catch (IOException ex) {
-                this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
-                e.setCancelled(true);
-                return;
-            }
 
             // Grab item-luck and experience boost from fishing rod
             // Apply item-luck before getting an initial drop
