@@ -1,6 +1,5 @@
 package net.highskiesmc.fishing.util;
 
-import net.highskiesmc.fishing.HSFishing;
 import org.bukkit.inventory.Inventory;
 
 public class UpgradeRodGUI {

@@ -16,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;

@@ -1,11 +1,8 @@
 package net.highskiesmc.fishing.events.events;
 
 import net.highskiesmc.fishing.util.HSFishingRod;
-import net.highskiesmc.fishing.util.enums.Perk;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
-import java.util.HashMap;
 
 public class RodLevelUpEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();

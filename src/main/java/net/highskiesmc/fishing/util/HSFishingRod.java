@@ -112,16 +112,17 @@ public class HSFishingRod {
             this.oldMeta = existingRod.getItemMeta();
             pdc = existingRod.getItemMeta().getPersistentDataContainer();
             if (pdc.has(this.LEVEL_KEY, PersistentDataType.INTEGER)) {
-                this.level = pdc.get(this.LEVEL_KEY, PersistentDataType.INTEGER);
-                this.totalExperience = pdc.get(this.TOTAL_EXPERIENCE_KEY, PersistentDataType.DOUBLE);
-                this.currentExperience = pdc.get(this.CURRENT_EXPERIENCE_KEY, PersistentDataType.DOUBLE);
-                this.experienceMultiplier = pdc.get(this.EXPERIENCE_MULTIPLIER_KEY, PersistentDataType.DOUBLE);
-                this.fishingSpeed = pdc.get(this.FISHING_SPEED_KEY, PersistentDataType.DOUBLE);
-                this.itemLuck = pdc.get(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE);
-                this.doubleDrops = pdc.get(this.DOUBLE_DROPS_KEY, PersistentDataType.DOUBLE);
-                this.doubleXp = pdc.get(this.DOUBLE_XP_KEY, PersistentDataType.DOUBLE);
-                this.totalItemsCaught = pdc.get(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER);
-                this.skillPoints = pdc.get(this.SKILL_POINTS_KEY, PersistentDataType.INTEGER);
+                this.level = pdc.getOrDefault(this.LEVEL_KEY, PersistentDataType.INTEGER, 1);
+                this.totalExperience = pdc.getOrDefault(this.TOTAL_EXPERIENCE_KEY, PersistentDataType.DOUBLE, 0D);
+                this.currentExperience = pdc.getOrDefault(this.CURRENT_EXPERIENCE_KEY, PersistentDataType.DOUBLE, 0D);
+                this.experienceMultiplier = pdc.getOrDefault(this.EXPERIENCE_MULTIPLIER_KEY,
+                        PersistentDataType.DOUBLE, 1D);
+                this.fishingSpeed = pdc.getOrDefault(this.FISHING_SPEED_KEY, PersistentDataType.DOUBLE, 0D);
+                this.itemLuck = pdc.getOrDefault(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE, 0D);
+                this.doubleDrops = pdc.getOrDefault(this.DOUBLE_DROPS_KEY, PersistentDataType.DOUBLE, 0D);
+                this.doubleXp = pdc.getOrDefault(this.DOUBLE_XP_KEY, PersistentDataType.DOUBLE, 0D);
+                this.totalItemsCaught = pdc.getOrDefault(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER, 0);
+                this.skillPoints = pdc.getOrDefault(this.SKILL_POINTS_KEY, PersistentDataType.INTEGER, 0);
             } else {
                 throw new IllegalArgumentException("Item received was not a valid HSFishingRod");
             }
@@ -208,7 +209,7 @@ public class HSFishingRod {
         lore.add(ChatColor.YELLOW + "Xp Gain: " + ChatColor.AQUA + (new DecimalFormat("#.##")).format(this.experienceMultiplier) + 'x');
 
         if (this.fishingSpeed > 0) {
-            lore.add(ChatColor.YELLOW + "Fishing Speed: " + ChatColor.AQUA + "+" + Double.valueOf(this.fishingSpeed).intValue());
+            lore.add(ChatColor.YELLOW + "Fishing Speed: " + ChatColor.AQUA + "+" + Double.valueOf(this.fishingSpeed).intValue() + "%");
         }
 
         if (this.itemLuck > 0) {

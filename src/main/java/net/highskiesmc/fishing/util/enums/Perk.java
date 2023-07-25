@@ -1,21 +1,17 @@
 package net.highskiesmc.fishing.util.enums;
 
-import org.checkerframework.checker.units.qual.Length;
 import org.checkerframework.common.value.qual.ArrayLen;
 import org.checkerframework.common.value.qual.IntRange;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Objects;
-import java.util.Random;
 
 public enum Perk {
-    XP_GAIN("Xp Gain", new LinkedList<>(Arrays.asList(1.00, 1.25, 1.50, 2.00D, 2.50))),
+    XP_GAIN("Xp Gain", new LinkedList<>(Arrays.asList(1.15, 1.25, 1.50, 1.80D, 2.50))),
     FISHING_SPEED("Fishing Speed", new LinkedList<>(Arrays.asList(10.00, 20.00, 30.00, 40.00, 50.00))),
     ITEM_FIND("Item Find", new LinkedList<>(Arrays.asList(25.00, 50.00, 125.00, 175.00, 250.00))),
     DOUBLE_DROPS("Double Drops", new LinkedList<>(Arrays.asList(2.50, 5.00, 7.50, 10.00, 15.00))),
-    DOUBLE_XP("Double Xp", new LinkedList<>(Arrays.asList(1D, 2.50, 5.00, 7.50, 10.00, 15.00)));
+    DOUBLE_XP("Double Xp", new LinkedList<>(Arrays.asList(2.50, 5.00, 7.50, 10.00, 15.00)));
     private final String VALUE;
     // Length = amount of skills...Should also edit skill point gain to account for new perks.
     public static final int MAX_PERK_LEVEL = 5;
@@ -35,7 +31,7 @@ public enum Perk {
     }
 
     public Integer getLevel(Double amount) {
-        return this.LEVELS.indexOf(amount);
+        return this.LEVELS.indexOf(amount) + 1;
     }
 
     /**

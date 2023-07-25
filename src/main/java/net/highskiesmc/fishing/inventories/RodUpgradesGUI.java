@@ -15,7 +15,6 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
@@ -34,8 +33,6 @@ public class RodUpgradesGUI implements GUI {
         int skillPoints = this.ROD.getSkillPoints();
         int currentLevel;
         int levelupCost;
-
-        if (skillPoints <= 0) return;
 
         switch (paramInventoryClickEvent.getRawSlot()) {
             case 10 -> {
@@ -62,7 +59,7 @@ public class RodUpgradesGUI implements GUI {
                     // Play sound
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 } else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_AMBIENT, 1, 1);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
                 }
             }
             case 11 -> {
@@ -89,7 +86,7 @@ public class RodUpgradesGUI implements GUI {
                     // Play sound
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 } else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_AMBIENT, 1, 1);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
                 }
             }
             case 13 -> {
@@ -116,7 +113,7 @@ public class RodUpgradesGUI implements GUI {
                     // Play sound
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 } else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_AMBIENT, 1, 1);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
                 }
             }
             case 15 -> {
@@ -143,7 +140,7 @@ public class RodUpgradesGUI implements GUI {
                     // Play sound
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 } else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_AMBIENT, 1, 1);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
                 }
             }
             case 16 -> {
@@ -170,7 +167,7 @@ public class RodUpgradesGUI implements GUI {
                     // Play sound
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 } else {
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_AMBIENT, 1, 1);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
                 }
             }
         }
@@ -188,7 +185,7 @@ public class RodUpgradesGUI implements GUI {
             } catch (IllegalArgumentException | IOException ignore) {
                 paramInventoryOpenEvent.getPlayer().closeInventory();
             }
-        }, 1);
+        }, 5);
     }
 
     @Override
@@ -253,22 +250,22 @@ public class RodUpgradesGUI implements GUI {
         meta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Xp Gain");
         List<String> lore = new ArrayList<>(Arrays.asList(
                 "",
-                ChatColor.YELLOW + "Current: " + this.ROD.getExperienceMultiplier() + "x"
+                ChatColor.YELLOW + "Current: " + ChatColor.AQUA + this.ROD.getExperienceMultiplier() + "x"
         ));
 
         int currentLevel = Perk.XP_GAIN.getLevel(this.ROD.getExperienceMultiplier());
         boolean isMaxLevel = currentLevel == Perk.MAX_PERK_LEVEL;
 
         if (!isMaxLevel) {
-            lore.add(ChatColor.YELLOW + "Next: " + Perk.XP_GAIN.getAmount(Perk.XP_GAIN.getLevel(this.ROD.getExperienceMultiplier())) +
-                    "x");
-            lore.add(ChatColor.YELLOW + "Max: " + Perk.XP_GAIN.getAmount(Perk.MAX_PERK_LEVEL) + "x");
+            lore.add(ChatColor.YELLOW + "Next: " + ChatColor.AQUA + Perk.XP_GAIN.getAmount(currentLevel + 1) + "x");
+            lore.add(ChatColor.YELLOW + "Max: " + ChatColor.AQUA + Perk.XP_GAIN.getAmount(Perk.MAX_PERK_LEVEL) + "x");
         }
 
         lore.addAll(Arrays.asList(
                 "",
                 ChatColor.AQUA + "Increases the amount of",
-                ChatColor.LIGHT_PURPLE.toString() + ChatColor.UNDERLINE + "xp" + ChatColor.AQUA + " per catch"
+                ChatColor.LIGHT_PURPLE.toString() + ChatColor.UNDERLINE + "xp" + ChatColor.AQUA + " per catch",
+                ""
         ));
 
         if (!isMaxLevel) {
@@ -290,22 +287,22 @@ public class RodUpgradesGUI implements GUI {
         meta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Fishing Speed");
         List<String> lore = new ArrayList<>(Arrays.asList(
                 "",
-                ChatColor.YELLOW + "Current: " + Double.valueOf(this.ROD.getFishingSpeed()).intValue() + "x"
+                ChatColor.YELLOW + "Current: " + ChatColor.AQUA + "+" + Double.valueOf(this.ROD.getFishingSpeed()).intValue() + "%"
         ));
 
         int currentLevel = Perk.FISHING_SPEED.getLevel(this.ROD.getFishingSpeed());
         boolean isMaxLevel = currentLevel == Perk.MAX_PERK_LEVEL;
 
         if (!isMaxLevel) {
-            lore.add(ChatColor.YELLOW + "Next: " + Double.valueOf(Perk.FISHING_SPEED.getAmount(Perk.FISHING_SPEED.getLevel(this.ROD.getFishingSpeed()))).intValue() +
-                    "x");
-            lore.add(ChatColor.YELLOW + "Max: " + Double.valueOf(Perk.FISHING_SPEED.getAmount(Perk.MAX_PERK_LEVEL)).intValue() + "x");
+            lore.add(ChatColor.YELLOW + "Next: " + ChatColor.AQUA + "+" + Double.valueOf(Perk.FISHING_SPEED.getAmount(currentLevel + 1)).intValue() + "%");
+            lore.add(ChatColor.YELLOW + "Max: " + ChatColor.AQUA + "+" + Double.valueOf(Perk.FISHING_SPEED.getAmount(Perk.MAX_PERK_LEVEL)).intValue() + "%");
         }
 
         lore.addAll(Arrays.asList(
                 "",
                 ChatColor.AQUA + "Increases the " + ChatColor.LIGHT_PURPLE + ChatColor.UNDERLINE + "speed",
-                ChatColor.AQUA + "of your fishing rod"
+                ChatColor.AQUA + "of your fishing rod",
+                ""
         ));
 
         if (!isMaxLevel) {
@@ -327,22 +324,22 @@ public class RodUpgradesGUI implements GUI {
         meta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Item Find");
         List<String> lore = new ArrayList<>(Arrays.asList(
                 "",
-                ChatColor.YELLOW + "Current: " + Double.valueOf(this.ROD.getItemLuck()).intValue() + "x"
+                ChatColor.YELLOW + "Current: " + ChatColor.LIGHT_PURPLE + Double.valueOf(this.ROD.getItemLuck()).intValue()
         ));
 
         int currentLevel = Perk.ITEM_FIND.getLevel(this.ROD.getItemLuck());
         boolean isMaxLevel = currentLevel == Perk.MAX_PERK_LEVEL;
 
         if (!isMaxLevel) {
-            lore.add(ChatColor.YELLOW + "Next: " + Double.valueOf(Perk.ITEM_FIND.getAmount(Perk.ITEM_FIND.getLevel(this.ROD.getItemLuck()))).intValue() +
-                    "x");
-            lore.add(ChatColor.YELLOW + "Max: " + Double.valueOf(Perk.ITEM_FIND.getAmount(Perk.MAX_PERK_LEVEL)).intValue() + "x");
+            lore.add(ChatColor.YELLOW + "Next: " + ChatColor.LIGHT_PURPLE + Double.valueOf(Perk.ITEM_FIND.getAmount(currentLevel + 1)).intValue());
+            lore.add(ChatColor.YELLOW + "Max: " + ChatColor.LIGHT_PURPLE + Double.valueOf(Perk.ITEM_FIND.getAmount(Perk.MAX_PERK_LEVEL)).intValue());
         }
 
         lore.addAll(Arrays.asList(
                 "",
                 ChatColor.AQUA + "Helps your rod",
-                ChatColor.AQUA + "catch " + ChatColor.LIGHT_PURPLE + ChatColor.UNDERLINE + "rarer" + ChatColor.AQUA + " drops"
+                ChatColor.AQUA + "catch " + ChatColor.LIGHT_PURPLE + ChatColor.UNDERLINE + "rarer" + ChatColor.AQUA + " drops",
+                ""
         ));
 
         if (!isMaxLevel) {
@@ -364,22 +361,22 @@ public class RodUpgradesGUI implements GUI {
         meta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Double Drops");
         List<String> lore = new ArrayList<>(Arrays.asList(
                 "",
-                ChatColor.YELLOW + "Current: " + Double.valueOf(this.ROD.getDoubleDrops()).intValue() + "x"
+                ChatColor.YELLOW + "Current: " + ChatColor.WHITE + Double.valueOf(this.ROD.getDoubleDrops()).intValue() + "%"
         ));
 
         int currentLevel = Perk.DOUBLE_DROPS.getLevel(this.ROD.getDoubleDrops());
         boolean isMaxLevel = currentLevel == Perk.MAX_PERK_LEVEL;
 
         if (!isMaxLevel) {
-            lore.add(ChatColor.YELLOW + "Next: " + Double.valueOf(Perk.DOUBLE_DROPS.getAmount(Perk.DOUBLE_DROPS.getLevel(this.ROD.getDoubleDrops()))).intValue() +
-                    "x");
-            lore.add(ChatColor.YELLOW + "Max: " + Double.valueOf(Perk.DOUBLE_DROPS.getAmount(Perk.MAX_PERK_LEVEL)).intValue() + "x");
+            lore.add(ChatColor.YELLOW + "Next: " + ChatColor.WHITE + Double.valueOf(Perk.DOUBLE_DROPS.getAmount(currentLevel + 1)).intValue() + "%");
+            lore.add(ChatColor.YELLOW + "Max: " + ChatColor.WHITE + Double.valueOf(Perk.DOUBLE_DROPS.getAmount(Perk.MAX_PERK_LEVEL)).intValue() + "%");
         }
 
         lore.addAll(Arrays.asList(
                 "",
                 ChatColor.AQUA + "Gives a chance for",
-                ChatColor.LIGHT_PURPLE.toString() + ChatColor.UNDERLINE + "double items"
+                ChatColor.LIGHT_PURPLE.toString() + ChatColor.UNDERLINE + "double items",
+                ""
         ));
 
         if (!isMaxLevel) {
@@ -401,22 +398,22 @@ public class RodUpgradesGUI implements GUI {
         meta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Double Xp");
         List<String> lore = new ArrayList<>(Arrays.asList(
                 "",
-                ChatColor.YELLOW + "Current: " + Double.valueOf(this.ROD.getDoubleXp()).intValue() + "x"
+                ChatColor.YELLOW + "Current: " + ChatColor.WHITE + Double.valueOf(this.ROD.getDoubleXp()).intValue() + "%"
         ));
 
         int currentLevel = Perk.DOUBLE_XP.getLevel(this.ROD.getDoubleXp());
         boolean isMaxLevel = currentLevel == Perk.MAX_PERK_LEVEL;
 
         if (!isMaxLevel) {
-            lore.add(ChatColor.YELLOW + "Next: " + Double.valueOf(Perk.DOUBLE_XP.getAmount(Perk.DOUBLE_XP.getLevel(this.ROD.getDoubleXp()))).intValue() +
-                    "x");
-            lore.add(ChatColor.YELLOW + "Max: " + Double.valueOf(Perk.DOUBLE_XP.getAmount(Perk.MAX_PERK_LEVEL)).intValue() + "x");
+            lore.add(ChatColor.YELLOW + "Next: " + ChatColor.WHITE + Double.valueOf(Perk.DOUBLE_XP.getAmount(currentLevel + 1)).intValue() + "%");
+            lore.add(ChatColor.YELLOW + "Max: " + ChatColor.WHITE + Double.valueOf(Perk.DOUBLE_XP.getAmount(Perk.MAX_PERK_LEVEL)).intValue() + "%");
         }
 
         lore.addAll(Arrays.asList(
                 "",
                 ChatColor.AQUA + "Gives a chance for",
-                ChatColor.LIGHT_PURPLE.toString() + ChatColor.UNDERLINE + "double xp"
+                ChatColor.LIGHT_PURPLE.toString() + ChatColor.UNDERLINE + "double xp",
+                ""
         ));
 
         if (!isMaxLevel) {
