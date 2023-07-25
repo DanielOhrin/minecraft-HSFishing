@@ -10,7 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.FishHook;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -54,17 +57,16 @@ public class PlayerFishHandler implements Listener {
         }
 
         if (e.getState().equals(PlayerFishEvent.State.FISHING)) {
-            double fishingSpeed = hsFishingRod.getFishingSpeed();
+            double fishingSpeed = hsFishingRod.getFishingSpeed() / 100D;
             FishHook hook = e.getHook();
+
+            int minWaitTime = Double.valueOf((double) hook.getMinWaitTime() - (double) hook.getMinWaitTime() * fishingSpeed).intValue();
+            int maxWaitTime = Double.valueOf((double) hook.getMaxWaitTime() - (double) hook.getMaxWaitTime() * fishingSpeed).intValue();
 
             // Update fishing speed
             // ^ Affects time for a fish to APPEAR -- not to bite
-            if (fishingSpeed > 500) {
-                hook.setMaxWaitTime(100);
-                hook.setMinWaitTime(Math.min(0, Double.valueOf(fishingSpeed - 500).intValue()));
-            } else {
-                hook.setMaxWaitTime(Double.valueOf(Math.max(100D, 600 - fishingSpeed)).intValue());
-            }
+            hook.setMinWaitTime(minWaitTime);
+            hook.setMaxWaitTime(maxWaitTime);
 
             // Prevent rod from hooking invisible armor stand and dropped items
             new BukkitRunnable() {

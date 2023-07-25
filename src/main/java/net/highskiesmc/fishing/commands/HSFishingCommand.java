@@ -61,16 +61,15 @@ public class HSFishingCommand implements CommandExecutor {
     private boolean rod(CommandSender sender, String[] args) {
         if (args.length > 1) {
             switch (args[1].toLowerCase()) {
-                case "give":
+                case "give" -> {
                     return giveRod(sender, args);
-                case "add-drop":
+                }
+                case "add-drop" -> {
                     return addDrop(sender, args);
-                case "set":
+                }
+                case "set" -> {
                     return set(sender, args);
-                case "add-perk":
-                    return addPerk(sender, args);
-                default:
-                    break;
+                }
             }
         }
 
@@ -178,9 +177,8 @@ public class HSFishingCommand implements CommandExecutor {
 
     public boolean set(CommandSender sender, String[] args) {
         if (sender.hasPermission("hsfishing.rod.set")) {
-            if (sender instanceof Player) {
+            if (sender instanceof Player player) {
                 // Check that they are holding a valid rod
-                Player player = (Player) sender;
                 ItemStack heldItem = player.getInventory().getItemInMainHand();
                 HSFishingRod rod = null;
                 try {
@@ -213,18 +211,15 @@ public class HSFishingCommand implements CommandExecutor {
                             }
 
                             switch (perk) {
-                                case ITEM_FIND:
-                                    rod.setItemLuck(value);
-                                    break;
-                                case EXPERIENCE_MULTIPLIER:
-                                    rod.setExperienceMultiplier(value);
-                                    break;
-                                case FISHING_SPEED:
-                                    rod.setFishingSpeed(value);
-                                    break;
-                                default:
+                                case ITEM_FIND -> rod.setItemLuck(value);
+                                case XP_GAIN -> rod.setExperienceMultiplier(value);
+                                case FISHING_SPEED -> rod.setFishingSpeed(value);
+                                case DOUBLE_DROPS -> rod.setDoubleDrops(value);
+                                case DOUBLE_XP -> rod.setDoubleXp(value);
+                                default -> {
                                     return LogUtils.error(sender, "/hsfishing rod set <level/perk> <value>",
                                             this.MAIN);
+                                }
                             }
                         }
 
@@ -233,47 +228,6 @@ public class HSFishingCommand implements CommandExecutor {
                     } else {
                         return LogUtils.error(sender, "/hsfishing rod set <level/perk> <value>", this.MAIN);
                     }
-                } else {
-                    return LogUtils.error(sender, LogUtils.ERROR_VALID_ROD, this.MAIN);
-                }
-            } else {
-                return LogUtils.error(sender, LogUtils.PLAYER_ONLY, this.MAIN);
-            }
-        } else {
-            return LogUtils.error(sender, LogUtils.ERROR_PERMISSION, this.MAIN);
-        }
-    }
-
-    private boolean addPerk(CommandSender sender, String[] args) {
-        if (sender.hasPermission("hsfishing.rod.add-perk")) {
-            if (sender instanceof Player) {
-                // Check that they are holding a valid rod
-                Player player = (Player) sender;
-                ItemStack heldItem = player.getInventory().getItemInMainHand();
-                HSFishingRod rod = null;
-                try {
-                    rod = new HSFishingRod(this.MAIN, heldItem, player);
-                } catch (IOException | IllegalArgumentException ignored) {
-                }
-
-                if (rod != null) {
-                    HashMap<Perk, Double> perkAdded = rod.addRandomPerk();
-
-                    String perkMessage;
-                    if (perkAdded.isEmpty()) {
-                        perkMessage = RodLevelUpHandler.MESSAGE_PERK
-                                .replace("{perk}", ChatColor.RED + "None :(")
-                                .replace("+{amount}", "");
-                    } else {
-                        Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
-                        perkMessage = RodLevelUpHandler.MESSAGE_PERK
-                                .replace("{perk}", perkEntry.getKey().getValue())
-                                .replace("{amount}", String.valueOf(perkEntry.getValue()));
-                    }
-
-                    player.getInventory().setItemInMainHand(rod.getRod());
-                    player.sendMessage(perkMessage);
-                    return LogUtils.success(sender, LogUtils.SUCCESS, this.MAIN);
                 } else {
                     return LogUtils.error(sender, LogUtils.ERROR_VALID_ROD, this.MAIN);
                 }

@@ -38,7 +38,6 @@ public class HSFishingTabCompleter implements TabCompleter {
                     if (sender.hasPermission("hsfishing.tab.rod")) {
                         result.add("give");
                         result.add("add-drop");
-                        result.add("add-perk");
                         result.add("set");
                     }
                 }

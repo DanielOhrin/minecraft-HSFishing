@@ -3,7 +3,6 @@ package net.highskiesmc.fishing.util;
 import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.events.events.RodLevelUpEvent;
 import net.highskiesmc.fishing.events.events.RodMilestoneUnlockedEvent;
-import net.highskiesmc.fishing.util.enums.Perk;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,12 +14,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.checkerframework.common.value.qual.IntRange;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class that parses an HSFishingRod into readable values
@@ -29,25 +28,31 @@ import java.util.stream.Collectors;
  */
 public class HSFishingRod {
     private ConfigurationSection ROD_CONFIG;
-    private final NamespacedKey LEVEL_KEY;
     private final NamespacedKey TOTAL_EXPERIENCE_KEY;
     private final NamespacedKey CURRENT_EXPERIENCE_KEY; // Current experience earned towards next level
-    private final NamespacedKey ITEM_LUCK_KEY;
+    private final NamespacedKey LEVEL_KEY;
     private final NamespacedKey EXPERIENCE_MULTIPLIER_KEY;
-    private final NamespacedKey TOTAL_ITEMS_CAUGHT_KEY;
     private final NamespacedKey FISHING_SPEED_KEY;
+    private final NamespacedKey ITEM_LUCK_KEY;
+    private final NamespacedKey DOUBLE_DROPS_KEY;
+    private final NamespacedKey DOUBLE_XP_KEY;
+    private final NamespacedKey TOTAL_ITEMS_CAUGHT_KEY;
+    private final NamespacedKey SKILL_POINTS_KEY;
     private final HSFishing MAIN;
     private final Player PLAYER;
     private ItemMeta oldMeta = null;
     private double totalExperience = 0;
     private double currentExperience = 0;
-    private double itemLuck = 0.0D;
     private int totalItemsCaught = 0;
-    private int level = 1;
-    private double experienceMultiplier = 1.0D;
     private final DropTable DROP_TABLE;
+    private int level = 1;
     private int currentMilestone;
-    private double fishingSpeed = 150;
+    private double experienceMultiplier = 1;
+    private double itemLuck = 0;
+    private double fishingSpeed = 0;
+    private double doubleDrops = 0;
+    private double doubleXp = 0;
+    private int skillPoints = 0;
 
     public HSFishingRod(HSFishing main, ItemStack existingRod, Player player) throws IOException,
             IllegalArgumentException {
@@ -55,10 +60,13 @@ public class HSFishingRod {
         this.LEVEL_KEY = new NamespacedKey(this.MAIN, "rod-level");
         this.TOTAL_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-total-experience");
         this.CURRENT_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-current-experience");
-        this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
         this.EXPERIENCE_MULTIPLIER_KEY = new NamespacedKey(this.MAIN, "rod-experience-multiplier");
-        this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
         this.FISHING_SPEED_KEY = new NamespacedKey(this.MAIN, "rod-fishing-speed");
+        this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
+        this.DOUBLE_DROPS_KEY = new NamespacedKey(this.MAIN, "rod-double-drops");
+        this.DOUBLE_XP_KEY = new NamespacedKey(this.MAIN, "rod-double-xp");
+        this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
+        this.SKILL_POINTS_KEY = new NamespacedKey(this.MAIN, "rod-skill-points");
 
         // Parse existing Rod
         this.parseRod(existingRod);
@@ -75,10 +83,13 @@ public class HSFishingRod {
         this.LEVEL_KEY = new NamespacedKey(this.MAIN, "rod-level");
         this.TOTAL_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-total-experience");
         this.CURRENT_EXPERIENCE_KEY = new NamespacedKey(this.MAIN, "rod-current-experience");
-        this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
         this.EXPERIENCE_MULTIPLIER_KEY = new NamespacedKey(this.MAIN, "rod-experience-multiplier");
-        this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
         this.FISHING_SPEED_KEY = new NamespacedKey(this.MAIN, "rod-fishing-speed");
+        this.ITEM_LUCK_KEY = new NamespacedKey(this.MAIN, "rod-item-luck");
+        this.DOUBLE_DROPS_KEY = new NamespacedKey(this.MAIN, "rod-double-drops");
+        this.DOUBLE_XP_KEY = new NamespacedKey(this.MAIN, "rod-double-xp");
+        this.TOTAL_ITEMS_CAUGHT_KEY = new NamespacedKey(this.MAIN, "rod-total-items-caught");
+        this.SKILL_POINTS_KEY = new NamespacedKey(this.MAIN, "rod-skill-points");
 
         // Construct new rod
         this.findRodConfig(null);
@@ -101,14 +112,17 @@ public class HSFishingRod {
             this.oldMeta = existingRod.getItemMeta();
             pdc = existingRod.getItemMeta().getPersistentDataContainer();
             if (pdc.has(this.LEVEL_KEY, PersistentDataType.INTEGER)) {
-                this.level = pdc.get(this.LEVEL_KEY, PersistentDataType.INTEGER);
-                this.totalExperience = pdc.get(this.TOTAL_EXPERIENCE_KEY, PersistentDataType.DOUBLE);
-                this.currentExperience = pdc.get(this.CURRENT_EXPERIENCE_KEY, PersistentDataType.DOUBLE);
-                this.itemLuck = pdc.get(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE);
-                this.experienceMultiplier = pdc.get(this.EXPERIENCE_MULTIPLIER_KEY, PersistentDataType.DOUBLE);
-                this.totalItemsCaught = pdc.get(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER);
-                this.fishingSpeed = Math.max(pdc.getOrDefault(this.FISHING_SPEED_KEY, PersistentDataType.DOUBLE,
-                        150D), 150);
+                this.level = pdc.getOrDefault(this.LEVEL_KEY, PersistentDataType.INTEGER, 1);
+                this.totalExperience = pdc.getOrDefault(this.TOTAL_EXPERIENCE_KEY, PersistentDataType.DOUBLE, 0D);
+                this.currentExperience = pdc.getOrDefault(this.CURRENT_EXPERIENCE_KEY, PersistentDataType.DOUBLE, 0D);
+                this.experienceMultiplier = pdc.getOrDefault(this.EXPERIENCE_MULTIPLIER_KEY,
+                        PersistentDataType.DOUBLE, 1D);
+                this.fishingSpeed = pdc.getOrDefault(this.FISHING_SPEED_KEY, PersistentDataType.DOUBLE, 0D);
+                this.itemLuck = pdc.getOrDefault(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE, 0D);
+                this.doubleDrops = pdc.getOrDefault(this.DOUBLE_DROPS_KEY, PersistentDataType.DOUBLE, 0D);
+                this.doubleXp = pdc.getOrDefault(this.DOUBLE_XP_KEY, PersistentDataType.DOUBLE, 0D);
+                this.totalItemsCaught = pdc.getOrDefault(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER, 0);
+                this.skillPoints = pdc.getOrDefault(this.SKILL_POINTS_KEY, PersistentDataType.INTEGER, 0);
             } else {
                 throw new IllegalArgumentException("Item received was not a valid HSFishingRod");
             }
@@ -131,10 +145,13 @@ public class HSFishingRod {
         pdc.set(this.LEVEL_KEY, PersistentDataType.INTEGER, this.level);
         pdc.set(this.TOTAL_EXPERIENCE_KEY, PersistentDataType.DOUBLE, this.totalExperience);
         pdc.set(this.CURRENT_EXPERIENCE_KEY, PersistentDataType.DOUBLE, this.currentExperience);
-        pdc.set(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE, this.itemLuck);
         pdc.set(this.EXPERIENCE_MULTIPLIER_KEY, PersistentDataType.DOUBLE, this.experienceMultiplier);
-        pdc.set(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER, this.totalItemsCaught);
         pdc.set(this.FISHING_SPEED_KEY, PersistentDataType.DOUBLE, this.fishingSpeed);
+        pdc.set(this.ITEM_LUCK_KEY, PersistentDataType.DOUBLE, this.itemLuck);
+        pdc.set(this.DOUBLE_DROPS_KEY, PersistentDataType.DOUBLE, this.doubleDrops);
+        pdc.set(this.DOUBLE_XP_KEY, PersistentDataType.DOUBLE, this.doubleXp);
+        pdc.set(this.TOTAL_ITEMS_CAUGHT_KEY, PersistentDataType.INTEGER, this.totalItemsCaught);
+        pdc.set(this.SKILL_POINTS_KEY, PersistentDataType.INTEGER, this.skillPoints);
 
         if (this.ROD_CONFIG == null) {
             throw new NullPointerException("Could not find matching configuration section for the rod");
@@ -192,11 +209,19 @@ public class HSFishingRod {
         lore.add(ChatColor.YELLOW + "Xp Gain: " + ChatColor.AQUA + (new DecimalFormat("#.##")).format(this.experienceMultiplier) + 'x');
 
         if (this.fishingSpeed > 0) {
-            lore.add(ChatColor.YELLOW + "Fishing Speed: " + ChatColor.AQUA + "+" + new DecimalFormat("#.##").format(this.fishingSpeed));
+            lore.add(ChatColor.YELLOW + "Fishing Speed: " + ChatColor.AQUA + "+" + Double.valueOf(this.fishingSpeed).intValue() + "%");
         }
 
         if (this.itemLuck > 0) {
             lore.add(ChatColor.YELLOW + "Item Find: " + ChatColor.LIGHT_PURPLE + "+" + new DecimalFormat("#.##").format(this.itemLuck));
+        }
+
+        if (this.doubleDrops > 0) {
+            lore.add(ChatColor.YELLOW + "Double Drops: " + ChatColor.WHITE + new DecimalFormat("#.##").format(this.doubleDrops) + "%");
+        }
+
+        if (this.doubleXp > 0) {
+            lore.add(ChatColor.YELLOW + "Double Xp: " + ChatColor.WHITE + new DecimalFormat("#.##").format(this.doubleXp) + "%");
         }
 
         lore.add("");
@@ -270,45 +295,17 @@ public class HSFishingRod {
                 // Update necessary data and call custom event
                 this.upgrade();
 
-                // Add random perk
-                HashMap<Perk, Double> perkAdded = this.addRandomPerk();
+                // Grant skill point(s)
+                int skillPointsGiven = 1;
+                this.skillPoints += skillPointsGiven;
 
                 // Update the rod configuration
                 findRodConfig(null);
 
                 // Call the custom HSRodLevelUpEvent
-                Bukkit.getPluginManager().callEvent(new RodLevelUpEvent(this, perkAdded));
+                Bukkit.getPluginManager().callEvent(new RodLevelUpEvent(this, skillPointsGiven));
             }
         }
-    }
-
-    /**
-     * Calls getRandomPerk and adds it to the rod. Returns the perk and value added
-     * OR an empty hashmap if no perk was added
-     */
-    public HashMap<Perk, Double> addRandomPerk() {
-        // Add random perk
-        HashMap<Perk, Double> perkAdded = this.getRandomPerk();
-        if (!perkAdded.isEmpty()) {
-            Map.Entry<Perk, Double> perkEntry = perkAdded.entrySet().iterator().next();
-            switch (perkEntry.getKey()) {
-                case ITEM_FIND:
-                    this.itemLuck =
-                            Double.parseDouble(new DecimalFormat("#.##").format(this.itemLuck + perkEntry.getValue()));
-                    break;
-                case EXPERIENCE_MULTIPLIER:
-                    this.experienceMultiplier =
-                            Double.parseDouble(new DecimalFormat("#.##").format(this.experienceMultiplier + perkEntry.getValue()));
-                    break;
-                case FISHING_SPEED:
-                    this.fishingSpeed =
-                            Double.parseDouble(new DecimalFormat("#.##").format(this.fishingSpeed + perkEntry.getValue()));
-                default:
-                    break;
-            }
-        }
-
-        return perkAdded;
     }
 
     /**
@@ -360,27 +357,6 @@ public class HSFishingRod {
         this.totalItemsCaught += amount;
     }
 
-    /**
-     * @return Random perk from the Perk enum, or an empty map
-     */
-    private HashMap<Perk, Double> getRandomPerk() {
-        HashMap<Perk, Double> map = new HashMap<>();
-        // Obtain random perk
-        List<Perk> perks = Arrays.stream(Perk.values()).collect(Collectors.toList());
-        int perkIndex = new Random().nextInt(-1, perks.size());
-
-        if (perkIndex == -1) {
-            // No perk received
-            return map;
-        }
-
-        Perk perk = perks.get(perkIndex);
-        double increment = perk.getRandomIncrement();
-
-        map.put(perk, increment);
-        return map;
-    }
-
     public int getLevel() {
         return this.level;
     }
@@ -425,5 +401,29 @@ public class HSFishingRod {
 
     public void setFishingSpeed(double speed) {
         this.fishingSpeed = speed;
+    }
+
+    public double getDoubleDrops() {
+        return this.doubleDrops;
+    }
+
+    public void setDoubleDrops(double chance) {
+        this.doubleDrops = chance;
+    }
+
+    public double getDoubleXp() {
+        return this.doubleXp;
+    }
+
+    public void setDoubleXp(double chance) {
+        this.doubleXp = chance;
+    }
+
+    public int getSkillPoints() {
+        return this.skillPoints;
+    }
+
+    public void setSkillPoints(@IntRange(from = 0) int skillPoints) {
+        this.skillPoints = skillPoints;
     }
 }
