@@ -31,7 +31,7 @@ public class FishCaughtHandler implements Listener {
             + ChatColor.DARK_AQUA + "{xp} " + ChatColor.YELLOW + "xp" + ChatColor.GRAY + ')';
 
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void applyExtraPerks(FishCaughtEvent e) {
         final HSFishingRod ROD = e.getFishingRod();
 
@@ -39,7 +39,7 @@ public class FishCaughtHandler implements Listener {
 
         if (ROD.getDoubleDrops() > 0) {
             double rng = new Random().nextDouble();
-            if (rng <= ROD.getDoubleDrops()) {
+            if (rng <= ROD.getDoubleDrops() / 100D) {
                 for (DropEntry drop : drops) {
                     drop.setAmount(drop.getAmount() * 2);
                 }
@@ -53,7 +53,7 @@ public class FishCaughtHandler implements Listener {
 
         if (ROD.getDoubleXp() > 0) {
             double rng = new Random().nextDouble();
-            if (rng <= ROD.getDoubleXp()) {
+            if (rng <= ROD.getDoubleXp() / 100D) {
                 for (DropEntry drop : drops) {
                     drop.setExperience(drop.getExperience() * 2);
                 }

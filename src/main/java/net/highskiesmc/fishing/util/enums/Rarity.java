@@ -9,7 +9,8 @@ public enum Rarity {
     EPIC(ChatColor.AQUA),
     LEGENDARY(ChatColor.BLUE),
     UNIQUE(ChatColor.LIGHT_PURPLE),
-    SPECIAL(ChatColor.LIGHT_PURPLE);
+    SPECIAL(ChatColor.LIGHT_PURPLE),
+    ISLAND(ChatColor.YELLOW);
     private final ChatColor COLOR;
     Rarity(ChatColor chatColor) {
         this.COLOR = chatColor;
