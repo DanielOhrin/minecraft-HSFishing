@@ -1,5 +1,6 @@
 package net.highskiesmc.fishing.util;
 
+import net.highskiesmc.fishing.HSFishing;
 import net.highskiesmc.fishing.util.enums.Rarity;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +12,12 @@ import java.util.List;
 import java.util.Random;
 
 public class DropTable {
+    private static final HSFishing MAIN;
+
+    static {
+        MAIN = HSFishing.getPlugin(HSFishing.class);
+    }
+
     private final List<DropEntry> DROP_ENTRIES;
     private final Random RANDOM;
     private double extraWeight;
@@ -63,13 +70,19 @@ public class DropTable {
     }
 
     private Rarity getRarity(double dropChance) {
-        if (dropChance >= 0.05D) {
+        double commonThreshold = MAIN.getConfig().getDouble("rarity.common", 1D) / 100;
+        double uncommonThreshold = MAIN.getConfig().getDouble("rarity.uncommon", 0.5D) / 100;
+        double rareThreshold = MAIN.getConfig().getDouble("rarity.rare", 0.1D) / 100;
+        double epicThreshold = MAIN.getConfig().getDouble("rarity.epic", 0.01D) / 100;
+
+
+        if (dropChance >= commonThreshold) {
             return Rarity.COMMON;
-        } else if (dropChance >= 0.025D) {
+        } else if (dropChance >= uncommonThreshold) {
             return Rarity.UNCOMMON;
-        } else if (dropChance >= 0.0175D) {
+        } else if (dropChance >= rareThreshold) {
             return Rarity.RARE;
-        } else if (dropChance >= 0.01D) {
+        } else if (dropChance >= epicThreshold) {
             return Rarity.EPIC;
         } else {
             return Rarity.LEGENDARY;

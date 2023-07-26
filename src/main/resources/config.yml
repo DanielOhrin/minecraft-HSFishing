@@ -15,6 +15,17 @@
 # Must have one rod with a minimum-level of 1
 # Rods must be in ascending order (lowest first)
 
+
+# Rarity is checked top-down
+# Here, you set the minimum % chance getting an item needs to be for each rarity
+rarity:
+ common: 1
+ uncommon: 0.5
+ rare: 0.1
+ epic: 0.01
+  # Legendary is anything with less chance than epic
+
+
 old-rod:
   minimum-level: 1 # No need to set maximum, as the next milestone would do that
   display-name: '&b&lOld Rod'
