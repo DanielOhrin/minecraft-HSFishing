@@ -50,6 +50,7 @@ public class HSFishingTabCompleter implements TabCompleter {
                         }
                     } else if (args[1].equalsIgnoreCase("set")) {
                         result.add("level");
+                        result.add("skill-points");
                         result.addAll(Arrays.stream(Perk.values()).map(Enum::name).collect(Collectors.toList()));
                     } else if (args[1].equalsIgnoreCase("give")) {
                         result.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(x -> x.toLowerCase().contains(args[2].toLowerCase())).collect(Collectors.toList()));

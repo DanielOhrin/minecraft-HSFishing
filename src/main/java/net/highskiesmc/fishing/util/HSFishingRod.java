@@ -201,6 +201,7 @@ public class HSFishingRod {
         } else {
             lore.add(ChatColor.YELLOW.toString() + ChatColor.BOLD + "MAX LEVEL");
         }
+        lore.add(ChatColor.GOLD.toString() + ChatColor.BOLD + "Total Drops: " + ChatColor.AQUA + this.totalItemsCaught);
 
         // List perks
         lore.add("");
@@ -225,7 +226,7 @@ public class HSFishingRod {
         }
 
         lore.add("");
-        lore.add(ChatColor.GOLD + "Total Drops: " + ChatColor.AQUA + this.totalItemsCaught);
+        lore.add(ChatColor.WHITE.toString() + ChatColor.ITALIC + "Swap to offhand for " + ChatColor.GRAY + ChatColor.ITALIC + ChatColor.UNDERLINE + "upgrades");
 
         return lore;
     }

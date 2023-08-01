@@ -14,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -38,12 +39,14 @@ public class HSFishingCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {
-                case "rod":
+                case "rod" -> {
                     return this.rod(sender, args);
-                case "reload":
+                }
+                case "reload" -> {
                     return this.reload(sender);
-                default:
-                    break;
+                }
+                default -> {
+                }
             }
         }
         return LogUtils.error(sender, USAGE_MAIN, this.MAIN);
@@ -203,6 +206,8 @@ public class HSFishingCommand implements CommandExecutor {
 
                         if (args[2].equalsIgnoreCase("level")) {
                             rod.setLevel(Math.min(CustomLevelSystem.MAX_LEVEL, Math.max(1, value.intValue())));
+                        } else if (args[2].equalsIgnoreCase("skill-points")) {
+                            rod.setSkillPoints(Math.max(0, value.intValue()));
                         } else {
                             Perk perk = null;
                             try {
@@ -217,8 +222,8 @@ public class HSFishingCommand implements CommandExecutor {
                                 case DOUBLE_DROPS -> rod.setDoubleDrops(value);
                                 case DOUBLE_XP -> rod.setDoubleXp(value);
                                 default -> {
-                                    return LogUtils.error(sender, "/hsfishing rod set <level/perk> <value>",
-                                            this.MAIN);
+                                    return LogUtils.error(sender, "/hsfishing rod set <level/perk/skill-points> " +
+                                            "<value>", this.MAIN);
                                 }
                             }
                         }
