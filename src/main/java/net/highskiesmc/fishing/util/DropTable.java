@@ -39,7 +39,6 @@ public class DropTable {
         // Sort the drops in descending order by weight
         this.DROP_ENTRIES.sort(Comparator.comparingDouble(DropEntry::getWeight).reversed());
     }
-
     public void addDropEntry(DropEntry dropEntry) {
         this.DROP_ENTRIES.add(dropEntry);
     }

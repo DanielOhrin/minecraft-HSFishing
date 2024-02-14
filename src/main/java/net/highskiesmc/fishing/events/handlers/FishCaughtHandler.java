@@ -33,6 +33,10 @@ public class FishCaughtHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void applyExtraPerks(FishCaughtEvent e) {
+        if (e.getFishingRod() == null) {
+            return;
+        }
+
         final HSFishingRod ROD = e.getFishingRod();
 
         List<DropEntry> drops = e.getDroppedItems();
@@ -71,6 +75,11 @@ public class FishCaughtHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onFishCaught(FishCaughtEvent e) {
         HSFishingRod rod = e.getFishingRod();
+
+        if (rod == null) {
+            return;
+        }
+
         List<DropEntry> drops = e.getDroppedItems();
         Player player = rod.getPlayer();
         double expMulti = rod.getExperienceMultiplier();

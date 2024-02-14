@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.lang.module.Configuration;
 import java.util.List;
 
 public class ItemLauncher {
@@ -18,7 +19,7 @@ public class ItemLauncher {
     private static final int MAX_TICKS = 100; // Maximum number of ticks before stopping the launching
 
     public static void launchItems(JavaPlugin plugin, Location startLocation, Player player, List<ItemStack> items,
-                                   final ConfigurationSection ROD_CONFIG) {
+                                   Particle pParticle) {
         for (ItemStack item : items) {
             Item droppedItem = startLocation.getWorld().dropItem(startLocation, item);
             droppedItem.setOwner(player.getUniqueId()); // Set the owner of the dropped item
@@ -27,7 +28,7 @@ public class ItemLauncher {
 
             // Start the task to update item position and create particle effects
             new BukkitRunnable() {
-                private final Particle PARTICLE = Particle.valueOf(ROD_CONFIG.getString("particle"));
+                private final Particle particle = pParticle;
                 private int ticks = 0;
 
                 @Override
@@ -53,10 +54,10 @@ public class ItemLauncher {
 
                         // Update the item's position
                         droppedItem.setVelocity(direction.normalize().multiply(LAUNCH_SPEED));
-                        
+
                         // Create particle effect to connect item to the player
                         Location particleLocation = droppedItem.getLocation().add(0, 0.5, 0);
-                        player.getWorld().spawnParticle(this.PARTICLE, particleLocation, 1, 0, 0, 0, 0);
+                        player.getWorld().spawnParticle(this.particle, particleLocation, 1, 0, 0, 0, 0);
 
                     } else {
                         // Item is no longer valid or dead

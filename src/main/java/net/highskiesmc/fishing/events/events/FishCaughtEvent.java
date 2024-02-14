@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class FishCaughtEvent extends Event implements Cancellable {
         return this.PLAYER;
     }
 
+    @Nullable
     public HSFishingRod getFishingRod() {
         return this.FISHING_ROD;
     }

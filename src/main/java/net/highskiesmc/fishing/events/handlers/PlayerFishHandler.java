@@ -6,10 +6,7 @@ import net.highskiesmc.fishing.util.DropEntry;
 import net.highskiesmc.fishing.util.DropTable;
 import net.highskiesmc.fishing.util.HSFishingRod;
 import net.highskiesmc.fishing.util.ItemLauncher;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
@@ -44,12 +41,59 @@ public class PlayerFishHandler implements Listener {
             hsFishingRod = new HSFishingRod(this.MAIN,
                     player.getInventory().getItemInMainHand(), player);
         } catch (IllegalArgumentException ex) {
+            // If player not using an HSRod
+            if (e.getState().equals(PlayerFishEvent.State.FISHING)) {
+
+                // Prevent rod from hooking invisible armor stand and dropped items
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (e.getHook().isDead() || e.getHook().getLocation().getBlock().getType().equals(Material.WATER)) {
+                            cancel();
+                        }
+                        if (e.getHook().getHookedEntity() instanceof ArmorStand) {
+                            if (((ArmorStand) e.getHook().getHookedEntity()).isInvisible()) {
+                                e.getHook().setHookedEntity(null);
+                            }
+                        } else if (e.getHook().getHookedEntity() instanceof Item) {
+                            e.getHook().setHookedEntity(null);
+                        }
+                    }
+                }.runTaskTimer(this.MAIN, 0, 1);
+            }
+
+            if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
+                // Call the custom event
+                FishCaughtEvent event = new FishCaughtEvent(player, new ArrayList<>(), null, e.getHook());
+                Bukkit.getPluginManager().callEvent(event);
+
+                if (event.isCancelled()) {
+                    e.setCancelled(true);
+                    return;
+                }
+
+                List<DropEntry> drops = event.getDroppedItems();
+
+                // Throw drops to player
+                ItemLauncher.launchItems(
+                        this.MAIN,
+                        event.getHook().getLocation(),
+                        player,
+                        drops.stream().map(DropEntry::getItemStack).collect(Collectors.toList()),
+                        Particle.CLOUD
+                );
+            }
+
+            return;
+            /*
             // Provide player feedback that they must use a valid fishing rod
             e.setCancelled(true);
             player.sendMessage(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "[!] " +
                     ChatColor.RED + "You cannot fish with this!");
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
             return;
+
+             */
         } catch (IOException ex) {
             this.MAIN.getLogger().severe(Arrays.toString(ex.getStackTrace()));
             e.setCancelled(true);
@@ -60,8 +104,10 @@ public class PlayerFishHandler implements Listener {
             double fishingSpeed = hsFishingRod.getFishingSpeed() / 100D;
             FishHook hook = e.getHook();
 
-            int minWaitTime = Double.valueOf((double) hook.getMinWaitTime() - (double) hook.getMinWaitTime() * fishingSpeed).intValue();
-            int maxWaitTime = Double.valueOf((double) hook.getMaxWaitTime() - (double) hook.getMaxWaitTime() * fishingSpeed).intValue();
+            int minWaitTime =
+                    Double.valueOf((double) hook.getMinWaitTime() - (double) hook.getMinWaitTime() * fishingSpeed).intValue();
+            int maxWaitTime =
+                    Double.valueOf((double) hook.getMaxWaitTime() - (double) hook.getMaxWaitTime() * fishingSpeed).intValue();
 
             // Update fishing speed
             // ^ Affects time for a fish to APPEAR -- not to bite
@@ -134,7 +180,7 @@ public class PlayerFishHandler implements Listener {
                     event.getHook().getLocation(),
                     player,
                     drops.stream().map(DropEntry::getItemStack).collect(Collectors.toList()),
-                    hsFishingRod.getRodConfig()
+                    Particle.valueOf(hsFishingRod.getRodConfig().getString("particle"))
             );
 
             // Replace their rod with the updated one
