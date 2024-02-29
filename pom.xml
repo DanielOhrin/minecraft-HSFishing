@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.highskiesmc</groupId>
-    <artifactId>HSFishing</artifactId>
-    <version>2.0.1</version>
+    <artifactId>hsfishing</artifactId>
+    <version>2.0.2</version>
     <packaging>jar</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>HSFishing</name>
 
     <properties>
         <author>Daniel Ohrin</author>
@@ -58,7 +58,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.5.2</version>
                 <executions>
                     <execution>
                         <id>shaded</id>
@@ -72,7 +72,7 @@
                             <minimizeJar>true</minimizeJar>
                             <artifactSet>
                                 <includes>
-                                    <include>com.mattisadev:MCore</include>
+                                    <include>net.highskiesmc:hscore</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -88,8 +88,8 @@
                             </filters>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.mattisadev.mcore</pattern>
-                                    <shadedPattern>com.mattisadev.${project.artifactId}.core</shadedPattern>
+                                    <pattern>net.highskiesmc.hscore</pattern>
+                                    <shadedPattern>net.highskiesmc.fishing.core</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -120,13 +120,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.1-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.mattisadev</groupId>
-            <artifactId>MCore</artifactId>
-            <version>${core.version}</version>
+            <groupId>net.highskiesmc</groupId>
+            <artifactId>hscore</artifactId>
+            <version>1.2.3</version>
         </dependency>
     </dependencies>
 </project>
