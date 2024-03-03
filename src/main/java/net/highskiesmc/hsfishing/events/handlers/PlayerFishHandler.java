@@ -63,6 +63,12 @@ public class PlayerFishHandler implements Listener {
             }
 
             if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
+                // Clear existing drops
+                if (e.getCaught() != null) {
+                    e.getCaught().remove();
+                }
+                e.setExpToDrop(0);
+
                 // Call the custom event
                 FishCaughtEvent event = new FishCaughtEvent(player, new ArrayList<>(), null, e.getHook());
                 Bukkit.getPluginManager().callEvent(event);
