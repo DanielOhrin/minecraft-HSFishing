@@ -9,7 +9,6 @@ import com.leonardobishop.quests.common.quest.Quest;
 import com.leonardobishop.quests.common.quest.Task;
 import net.highskiesmc.hsfishing.HSFishing;
 import net.highskiesmc.hsfishing.events.events.FishCaughtEvent;
-import org.bukkit.event.block.BlockBreakEvent;
 
 import java.util.Arrays;
 import java.util.List;
