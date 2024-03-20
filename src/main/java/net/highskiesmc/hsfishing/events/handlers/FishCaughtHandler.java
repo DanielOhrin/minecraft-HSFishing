@@ -1,16 +1,20 @@
 package net.highskiesmc.hsfishing.events.handlers;
 
+import com.leonardobishop.quests.common.plugin.Quests;
 import net.highskiesmc.hsfishing.HSFishing;
 import net.highskiesmc.hsfishing.events.events.FishCaughtEvent;
+import net.highskiesmc.hsfishing.hooks.quests.FishCatchTaskType;
 import net.highskiesmc.hsfishing.util.DropEntry;
 import net.highskiesmc.hsfishing.util.HSFishingRod;
 import net.highskiesmc.hsfishing.util.HologramUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -86,6 +90,21 @@ public class FishCaughtHandler implements Listener {
 
         for (DropEntry entry : drops) {
             ItemStack drop = entry.getItemStack();
+
+            if (HSFishing.usingQuests) {
+                Quests q = (Quests) Bukkit.getPluginManager().getPlugin("Quests");
+                ItemMeta meta = drop.getItemMeta();
+
+                String fishId = drop.getType().toString();
+                if (meta != null) {
+                    fishId = meta.getDisplayName();
+                }
+
+                for (int i = 0; i < drop.getAmount(); i++) {
+                    FishCatchTaskType.updateQuests(e, fishId, MAIN, q);
+                }
+            }
+
             String displayName = drop.getItemMeta().hasDisplayName()
                     ? drop.getItemMeta().getDisplayName()
                     :

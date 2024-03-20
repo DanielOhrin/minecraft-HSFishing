@@ -3,6 +3,7 @@ version: '${project.version}'
 main: net.highskiesmc.hsfishing.HSFishing
 api-version: 1.13
 authors: [ Daniel Ohrin ]
+softdepend: [ Quests ]
 commands:
   hsfishing:
     aliases:
