@@ -9,16 +9,24 @@ import com.leonardobishop.quests.common.quest.Quest;
 import com.leonardobishop.quests.common.quest.Task;
 import net.highskiesmc.hsfishing.HSFishing;
 import net.highskiesmc.hsfishing.events.events.FishCaughtEvent;
+import org.bukkit.Bukkit;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class FishCatchTaskType extends BukkitTaskType {
+    private static Quests q;
     public FishCatchTaskType() {
         super("fishcaught", null, "Fish a certain amount of items.");
+
+        injectQ();
     }
 
-    public static void updateQuests(FishCaughtEvent e, String fishId, HSFishing main, Quests q) {
+    private void injectQ() {
+        q = (Quests) Bukkit.getPluginManager().getPlugin("Quests");
+    }
+
+    public static void updateQuests(FishCaughtEvent e, String fishId, HSFishing main) {
         // Iterate over every quest registered to the task type
         QPlayer qPlayer = q.getPlayerManager().getPlayer(e.getPlayer().getUniqueId());
 
