@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public final class HSFishing extends JavaPlugin {
-    public final static boolean usingQuests = Bukkit.getPluginManager().isPluginEnabled("Quests");
+    private static boolean usingQuests;
     private final HashMap<UUID, UpgradeRodGUI> OPEN_UPGRADEROD_GUIS = new HashMap<>();
 
     @Override
@@ -34,6 +34,7 @@ public final class HSFishing extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new RodUpgradedHandler(), this);
         Bukkit.getPluginManager().registerEvents(new UpgradeRodGUIHandlers(this.OPEN_UPGRADEROD_GUIS), this);
 
+        usingQuests = Bukkit.getPluginManager().isPluginEnabled("Quests");
         if (usingQuests) {
             Quests questsPlugin = (Quests) Bukkit.getPluginManager().getPlugin("Quests");
             getLogger().info("Successfully hooked into Quests!");
@@ -43,7 +44,9 @@ public final class HSFishing extends JavaPlugin {
             }
         }
     }
-
+    public static boolean usingQuests() {
+        return usingQuests;
+    }
     @Override
     public void onDisable() {
         // Plugin shutdown logic

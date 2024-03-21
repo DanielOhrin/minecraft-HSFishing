@@ -91,7 +91,7 @@ public class FishCaughtHandler implements Listener {
         for (DropEntry entry : drops) {
             ItemStack drop = entry.getItemStack();
 
-            if (HSFishing.usingQuests) {
+            if (HSFishing.usingQuests()) {
                 Quests q = (Quests) Bukkit.getPluginManager().getPlugin("Quests");
                 ItemMeta meta = drop.getItemMeta();
 
